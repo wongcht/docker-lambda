@@ -207,7 +207,7 @@ RUN mkdir /tmp/geos \
 #   && make -j $(nproc) --silent && make install \
 #   && rm -rf /tmp/proj
 
-ENV PROJ_VERSION=9.3.1
+ENV PROJ_VERSION=9.7.1
 RUN mkdir /tmp/proj && mkdir /tmp/proj/data \
   && curl -sfL https://github.com/OSGeo/proj/archive/${PROJ_VERSION}.tar.gz | tar zxf - -C /tmp/proj --strip-components=1 \
   && cd /tmp/proj \
