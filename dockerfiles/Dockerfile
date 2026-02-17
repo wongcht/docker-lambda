@@ -6,7 +6,7 @@ RUN yum update -y && \
     yum install -y git autoconf libtool flex bison cmake make \
       tar gzip gcc gcc-c++ automake16 libpng-devel nasm \
       libxml2-devel readline-devel openssl-devel curl-devel \
-      cmake3 && \
+      zlib-devel cmake3 && \
     yum clean all && \
     rm -rf /var/cache/yum /var/lib/yum/history
 
@@ -380,7 +380,8 @@ RUN mkdir /tmp/gdal \
     -DPNG_PNG_INCLUDE_DIR=$PREFIX/include \
     -DPNG_LIBRARY_RELEASE=$PREFIX/lib/libpng.so \
     -DBUILD_PYTHON_BINDINGS=OFF \
-  && make -j $(nproc) --silent && make install \
+    -DBUILD_TESTING=OFF \
+  && make -j $(nproc) && make install \
   && rm -rf /tmp/gdal
 
 # from https://github.com/pypa/manylinux/blob/d8ef5d47433ba771fa4403fd48f352c586e06e43/docker/build_scripts/build.sh#L133-L138
