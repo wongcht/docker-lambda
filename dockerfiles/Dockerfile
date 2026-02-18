@@ -79,13 +79,19 @@ RUN mkdir /tmp/libcurl \
 RUN mkdir /tmp/libdeflate \
   && curl -sfL https://github.com/ebiggers/libdeflate/archive/v1.25.tar.gz | tar zxf - -C /tmp/libdeflate --strip-components=1 \
   && cd /tmp/libdeflate \
-  && make -j $(nproc) --silent PREFIX=$PREFIX && make install \
+  && mkdir build && cd build \
+  && cmake .. \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX:PATH=$PREFIX \
+    -DCMAKE_INSTALL_LIBDIR:PATH=lib \
+    -DCMAKE_C_FLAGS="-O2 -Wl,-S" \
+  && make -j $(nproc) --silent && make install \
   && rm -rf /tmp/libdeflate
 
 # libpng
 ENV LIBPNG_VERSION=1.6.55
 RUN mkdir /tmp/png \
-  && curl -sfL https://github.com/pnggroup/libpng/releases/tag/v${LIBPNG_VERSION}.tar.gz | tar zxf - -C /tmp/png --strip-components=1 \
+  && curl -sfL https://github.com/pnggroup/libpng/archive/refs/tags/v${LIBPNG_VERSION}.tar.gz | tar zxf - -C /tmp/png --strip-components=1 \
   && cd /tmp/png \
   && CFLAGS="-O2 -Wl,-S" CXXFLAGS="-O2 -Wl,-S" ./configure --prefix=$PREFIX \
   && make -j $(nproc) --silent && make install \
@@ -120,7 +126,7 @@ ENV ZSTD_VERSION=1.5.7
 RUN mkdir /tmp/zstd \
   && curl -sfL https://github.com/facebook/zstd/archive/v${ZSTD_VERSION}.tar.gz | tar zxf - -C /tmp/zstd --strip-components=1 \
   && cd /tmp/zstd \
-  && make -j $(nproc) PREFIX=$PREFIX ZSTD_LEGACY_SUPPORT=0 CFLAGS=-O1 --silent && make install PREFIX=$PREFIX ZSTD_LEGACY_SUPPORT=0 CFLAGS=-O1 \
+  && make -j $(nproc) PREFIX=$PREFIX ZSTD_LEGACY_SUPPORT=0 CFLAGS="-O1 -fPIC" --silent && make install PREFIX=$PREFIX ZSTD_LEGACY_SUPPORT=0 CFLAGS="-O1 -fPIC" \
   && rm -rf /tmp/zstd
 
 # lerc
@@ -128,7 +134,8 @@ ENV LERC_VERSION=4.0.0
 RUN mkdir /tmp/lerc \
   && curl -sfL https://github.com/Esri/lerc/archive/v${LERC_VERSION}.tar.gz | tar zxf - -C /tmp/lerc --strip-components=1 \
   && cd /tmp/lerc \
-  && cmake . \
+  && rm -rf build && mkdir build && cd build \
+  && cmake .. \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX:PATH=$PREFIX \
     -DCMAKE_INSTALL_LIBDIR:PATH=lib \
@@ -311,7 +318,8 @@ RUN mkdir /tmp/hdf5 \
   && rm -rf /tmp/hdf5
 
 # NetCDF
-ENV NETCDF_VERSION=4.9.3
+# ENV NETCDF_VERSION=4.9.3 conflicts with GDAL
+ENV NETCDF_VERSION=4.7.4
 RUN mkdir /tmp/netcdf \
   && curl -sfL https://github.com/Unidata/netcdf-c/archive/v${NETCDF_VERSION}.tar.gz | tar zxf - -C /tmp/netcdf --strip-components=1 \
   && cd /tmp/netcdf \
@@ -383,7 +391,7 @@ RUN mkdir /tmp/gdal \
     -DGDAL_USE_GEOTIFF_INTERNAL=OFF \
     -DGDAL_USE_LERC_INTERNAL=OFF \
     -DLERC_INCLUDE_DIR=$PREFIX/include \
-    -DLERC_LIBRARY=$PREFIX/lib/libLercLib.so \
+    -DLERC_LIBRARY=$PREFIX/lib/libLerc.so \
     -DPNG_PNG_INCLUDE_DIR=$PREFIX/include \
     -DPNG_LIBRARY_RELEASE=$PREFIX/lib/libpng.so \
     -DSQLite3_INCLUDE_DIR=$PREFIX/include \
