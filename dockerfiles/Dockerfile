@@ -51,7 +51,7 @@ ENV \
 
 # libxml2
 RUN mkdir /tmp/libxml2 \
-  && curl -sfL https://gitlab.gnome.org/GNOME/libxml2/-/archive/v2.9.10/libxml2-v2.9.10.tar.gz | tar zxf - -C /tmp/libxml2 --strip-components=1  \
+  && curl -sfL https://gitlab.gnome.org/GNOME/libxml2/-/archive/v2.15.1/libxml2-v2.15.1.tar.gz | tar zxf - -C /tmp/libxml2 --strip-components=1  \
   && cd /tmp/libxml2 \
   && ./autogen.sh --prefix=$PREFIX --with-ftp=no --with-http=no --with-python=no \
   && make -j $(nproc) --silent && make install \
