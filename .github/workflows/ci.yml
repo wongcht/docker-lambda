@@ -13,6 +13,7 @@ on:
     tags:
     - '*'
   pull_request:
+  workflow_dispatch:
 
 env:
   GDAL_VERSION: 3.8.3
