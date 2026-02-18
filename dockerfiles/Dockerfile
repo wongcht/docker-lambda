@@ -37,7 +37,7 @@ RUN mkdir /tmp/sqlite \
 
 # libexpat
 RUN mkdir /tmp/libexpat \
-  && curl -sfL https://github.com/libexpat/libexpat/releases/download/R_2_2_10/expat-2.2.10.tar.gz | tar zxf - -C /tmp/libexpat --strip-components=1 \
+  && curl -sfL https://github.com/libexpat/libexpat/releases/download/R_2_7_4/expat-2.7.4.tar.gz | tar zxf - -C /tmp/libexpat --strip-components=1 \
   && cd /tmp/libexpat \
   && CFLAGS="-O2 -Wl,-S" CXXFLAGS="-O2 -Wl,-S" ./configure --prefix=$PREFIX --disable-static \
   && make -j $(nproc) --silent && make install && make clean \
