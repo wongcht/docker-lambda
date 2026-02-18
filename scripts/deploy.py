@@ -26,6 +26,7 @@ AWS_REGIONS = [
 
 # https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html#runtimes-supported
 # for OS = Amazon Linux 2023
+# make sure it must be inside enum value set in boto3
 CompatibleRuntimes_al2023 = [
     "nodejs24.x",
     "nodejs22.x",
@@ -36,7 +37,6 @@ CompatibleRuntimes_al2023 = [
     "java25",
     "java21",
     "dotnet10",
-    "dotnet9",
     "dotnet8",
     "ruby3.4",
     "ruby3.3",
