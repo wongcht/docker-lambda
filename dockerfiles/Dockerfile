@@ -417,6 +417,11 @@ COPY --from=builder /opt/include/ $PREFIX/include/
 COPY --from=builder /opt/share/ $PREFIX/share/
 COPY --from=builder /opt/bin/ $PREFIX/bin/
 
+# Install libtirpc runtime library required by ogrinfo
+RUN dnf install -y libtirpc && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf
+
 RUN export GDAL_VERSION=$(gdal-config --version)
 
 ENV \
