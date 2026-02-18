@@ -2,13 +2,13 @@ FROM public.ecr.aws/lambda/provided:al2023 AS builder
 
 LABEL maintainer="lambgeo <geolambdas@gmail.com>"
 
-RUN yum update -y && \
-    yum install -y git autoconf libtool flex bison cmake make \
-      tar gzip gcc gcc-c++ automake16 libpng-devel nasm \
-      libxml2-devel readline-devel openssl-devel curl-devel \
-      cmake3 && \
-    yum clean all && \
-    rm -rf /var/cache/yum /var/lib/yum/history
+RUN dnf update -y && \
+    dnf install -y git autoconf libtool flex bison cmake make \
+      tar gzip gcc gcc-c++ automake libpng-devel nasm \
+      libxml2-devel readline-devel openssl-devel libcurl-devel \
+      cmake && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf
 
 ENV PREFIX /opt
 
@@ -97,7 +97,7 @@ RUN mkdir /tmp/jpeg \
   && curl -sfL https://github.com/libjpeg-turbo/libjpeg-turbo/archive/${LIBJPEG_TURBO_VERSION}.tar.gz | tar zxf - -C /tmp/jpeg --strip-components=1 \
   && cd /tmp/jpeg \
   && mkdir build && cd build \
-  && cmake3 .. \
+  && cmake .. \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX:PATH=$PREFIX \
     -DCMAKE_INSTALL_LIBDIR:PATH=lib \
@@ -128,7 +128,7 @@ ENV LERC_VERSION=2.2.1
 RUN mkdir /tmp/lerc \
   && curl -sfL https://github.com/Esri/lerc/archive/v${LERC_VERSION}.tar.gz | tar zxf - -C /tmp/lerc --strip-components=1 \
   && cd /tmp/lerc \
-  && cmake3 . \
+  && cmake . \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX:PATH=$PREFIX \
     -DCMAKE_INSTALL_LIBDIR:PATH=lib \
@@ -170,7 +170,7 @@ RUN mkdir /tmp/openjpeg \
   && curl -sfL https://github.com/uclouvain/openjpeg/archive/v${OPENJPEG_VERSION}.tar.gz | tar zxf - -C /tmp/openjpeg --strip-components=1 \
   && cd /tmp/openjpeg \
   && mkdir build && cd build \
-  && cmake3 .. \
+  && cmake .. \
     -DBUILD_THIRDPARTY:BOOL=ON \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX:PATH=$PREFIX \
@@ -186,7 +186,7 @@ RUN mkdir /tmp/geos \
   && curl -sfL https://github.com/libgeos/geos/archive/refs/tags/${GEOS_VERSION}.tar.gz | tar zxf - -C /tmp/geos --strip-components=1 \
   && cd /tmp/geos \
   && mkdir build && cd build \
-  && cmake3 .. \
+  && cmake .. \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX:PATH=$PREFIX \
     -DCMAKE_INSTALL_LIBDIR:PATH=lib \
@@ -212,7 +212,7 @@ RUN mkdir /tmp/proj && mkdir /tmp/proj/data \
   && curl -sfL https://github.com/OSGeo/proj/archive/${PROJ_VERSION}.tar.gz | tar zxf - -C /tmp/proj --strip-components=1 \
   && cd /tmp/proj \
   && mkdir build && cd build \
-  && cmake3 .. \
+  && cmake .. \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX:PATH=$PREFIX \
     -DCMAKE_INSTALL_LIBDIR:PATH=lib \
@@ -243,7 +243,7 @@ ENV BLOSC_VERSION=1.21.6
 RUN mkdir /tmp/blosc \
   && curl -sfL https://github.com/Blosc/c-blosc/archive/refs/tags/v${BLOSC_VERSION}.tar.gz | tar zxf - -C /tmp/blosc --strip-components=1 \
   && cd /tmp/blosc \
-  && cmake3 -G"Unix Makefiles" \
+  && cmake -G"Unix Makefiles" \
     -DCMAKE_INSTALL_PREFIX:PATH=$PREFIX \
     -DCMAKE_INSTALL_LIBDIR:PATH=lib \
     -DCMAKE_INSTALL_RPATH="$ORIGIN" \
@@ -330,7 +330,7 @@ RUN mkdir /tmp/netcdf \
 #   && curl -sfL https://github.com/google/highway/archive/refs/tags/0.16.0.tar.gz | tar zxf - -C /tmp/libhwy --strip-components=1 \
 #   && cd /tmp/libhwy \
 #   && mkdir build && cd build \
-#   && cmake3 .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_INSTALL_PREFIX=$PREFIX \
+#   && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_INSTALL_PREFIX=$PREFIX \
 #   && make -j $(nproc) install && make clean \
 #   && rm -rf /tmp/libhwy
 
@@ -350,7 +350,7 @@ RUN mkdir /tmp/netcdf \
 #   && curl -sfL https://github.com/libjxl/libjxl/archive/refs/tags/v${JXL_VERSION}.tar.gz | tar zxf - -C /tmp/jxl --strip-components=1 \
 #   && cd /tmp/jxl \
 #   && mkdir build && cd build \
-#   && cmake3 .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_INSTALL_PREFIX=$PREFIX \
+#   && cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_INSTALL_PREFIX=$PREFIX \
 #   && make -j $(nproc) install && make clean \
 #   && rm -rf /tmp/jxl
 
@@ -364,7 +364,7 @@ RUN mkdir /tmp/gdal \
   && curl -sfL https://github.com/OSGeo/gdal/archive/refs/tags/v${GDAL_VERSION}.tar.gz | tar zxf - -C /tmp/gdal --strip-components=1 \
   && cd /tmp/gdal \
   && mkdir build && cd build \
-  && cmake3 .. \
+  && cmake .. \
     -DGDAL_USE_EXTERNAL_LIBS=ON \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX:PATH=$PREFIX \
