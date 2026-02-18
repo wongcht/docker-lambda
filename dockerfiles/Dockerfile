@@ -386,6 +386,8 @@ RUN mkdir /tmp/gdal \
     -DLERC_LIBRARY=$PREFIX/lib/libLercLib.so \
     -DPNG_PNG_INCLUDE_DIR=$PREFIX/include \
     -DPNG_LIBRARY_RELEASE=$PREFIX/lib/libpng.so \
+    -DSQLite3_INCLUDE_DIR=$PREFIX/include \
+    -DSQLite3_LIBRARY=$PREFIX/lib/libsqlite3.so \
     -DBUILD_PYTHON_BINDINGS=OFF \
   && make -j $(nproc) --silent && make install \
   && rm -rf /tmp/gdal
