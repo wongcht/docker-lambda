@@ -224,7 +224,7 @@ RUN mkdir /tmp/proj && mkdir /tmp/proj/data \
   && rm -rf /tmp/proj
 
 # GeoTIFF
-ENV LIBGEOTIFF_VERSION=1.7.1
+ENV LIBGEOTIFF_VERSION=1.7.4
 RUN mkdir /tmp/libgeotiff \
   && curl -sfL https://github.com/OSGeo/libgeotiff/releases/download/${LIBGEOTIFF_VERSION}/libgeotiff-${LIBGEOTIFF_VERSION}.tar.gz | tar zxf - -C /tmp/libgeotiff --strip-components=1 \
   && cd /tmp/libgeotiff \
