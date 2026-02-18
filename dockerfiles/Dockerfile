@@ -10,11 +10,11 @@ RUN yum update -y && \
     yum clean all && \
     rm -rf /var/cache/yum /var/lib/yum/history
 
-ENV PREFIX /opt
+ENV PREFIX=/opt
 
 WORKDIR /opt
 
-ENV LD_LIBRARY_PATH $PREFIX/lib:$LD_LIBRARY_PATH
+ENV LD_LIBRARY_PATH=$PREFIX/lib:$LD_LIBRARY_PATH
 
 # pkg-config
 ENV PKGCONFIG_VERSION=0.29.2
@@ -46,7 +46,7 @@ RUN mkdir /tmp/libexpat \
 ENV \
   SQLITE3_LIBS="-L${PREFIX}/lib -lsqlite3" \
   SQLITE3_INCLUDE_DIR="${PREFIX}/include" \
-  SQLITE3_CFLAGS="$CFLAGS -I${PREFIX}/include" \
+  SQLITE3_CFLAGS="-O2 -Wl,-S -I${PREFIX}/include" \
   PATH=${PREFIX}/bin/:$PATH
 
 # libxml2
@@ -404,7 +404,7 @@ RUN for i in $PREFIX/lib/*.so; do patchelf --force-rpath --set-rpath '$ORIGIN' $
 # Build final image
 FROM public.ecr.aws/lambda/provided:al2 AS runner
 
-ENV PREFIX /opt
+ENV PREFIX=/opt
 COPY --from=builder /opt/lib/ $PREFIX/lib/
 COPY --from=builder /opt/include/ $PREFIX/include/
 COPY --from=builder /opt/share/ $PREFIX/share/
@@ -412,11 +412,10 @@ COPY --from=builder /opt/bin/ $PREFIX/bin/
 
 RUN export GDAL_VERSION=$(gdal-config --version)
 
-ENV \
-  GDAL_DATA=$PREFIX/share/gdal \
-  PROJ_LIB=$PREFIX/share/proj \
-  GDAL_CONFIG=$PREFIX/bin/gdal-config \
-  GEOS_CONFIG=$PREFIX/bin/geos-config \
-  PATH=$PREFIX/bin:$PATH
+ENV GDAL_DATA=$PREFIX/share/gdal \
+    PROJ_LIB=$PREFIX/share/proj \
+    GDAL_CONFIG=$PREFIX/bin/gdal-config \
+    GEOS_CONFIG=$PREFIX/bin/geos-config \
+    PATH=$PREFIX/bin:$PATH
 
-ENTRYPOINT bash
+ENTRYPOINT ["bash"]
