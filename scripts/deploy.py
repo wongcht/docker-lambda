@@ -24,25 +24,23 @@ AWS_REGIONS = [
 ]
 
 
-CompatibleRuntimes_al2 = [
+# https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html#runtimes-supported
+# for OS = Amazon Linux 2023
+CompatibleRuntimes_al2023 = [
+    "nodejs24.x",
     "nodejs22.x",
     "nodejs20.x",
-    "nodejs18.x",
+    "python3.14",
     "python3.13",
     "python3.12",
-    "python3.11",
-    "python3.10",
-    "python3.9",
+    "java25",
     "java21",
-    "java17",
-    "java11",
-    "java8.al2",
+    "dotnet10",
+    "dotnet9",
     "dotnet8",
-    "dotnet6",
+    "ruby3.4",
     "ruby3.3",
-    "ruby3.2",
     "provided.al2023",
-    "provided.al2",
 ]
 
 
@@ -71,7 +69,7 @@ def main(gdalversion, deploy):
                 res = client.publish_layer_version(
                     LayerName=layer_name,
                     Content={"ZipFile": zf.read()},
-                    CompatibleRuntimes=CompatibleRuntimes_al2,
+                    CompatibleRuntimes=CompatibleRuntimes_al2023,
                     Description=description,
                     LicenseInfo="MIT",
                 )
