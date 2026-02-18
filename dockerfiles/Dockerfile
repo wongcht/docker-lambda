@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lambda/provided:al2 AS builder
+FROM public.ecr.aws/lambda/provided:al2023 AS builder
 
 LABEL maintainer="lambgeo <geolambdas@gmail.com>"
 
