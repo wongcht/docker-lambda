@@ -30,7 +30,7 @@ layers = [
     # "gdal33-al2",  # archive
     # "gdal35",  # archive
     # "gdal36",  # archive
-    "gdal38",
+    "gdal312",
 ]
 
 
