@@ -239,7 +239,7 @@ RUN mkdir /tmp/libgeotiff \
   && rm -rf /tmp/libgeotiff
 
 # Build blosc (needed for ZARR)
-ENV BLOSC_VERSION=1.21.0
+ENV BLOSC_VERSION=1.21.6
 RUN mkdir /tmp/blosc \
   && curl -sfL https://github.com/Blosc/c-blosc/archive/refs/tags/v${BLOSC_VERSION}.tar.gz | tar zxf - -C /tmp/blosc --strip-components=1 \
   && cd /tmp/blosc \
