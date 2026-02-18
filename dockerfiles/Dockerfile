@@ -181,7 +181,7 @@ RUN mkdir /tmp/openjpeg \
   && rm -rf /tmp/openjpeg
 
 # geos
-ENV GEOS_VERSION=3.12.1
+ENV GEOS_VERSION=3.14.1
 RUN mkdir /tmp/geos \
   && curl -sfL https://github.com/libgeos/geos/archive/refs/tags/${GEOS_VERSION}.tar.gz | tar zxf - -C /tmp/geos --strip-components=1 \
   && cd /tmp/geos \
