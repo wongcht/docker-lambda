@@ -1,7 +1,6 @@
 """Deploy aws lambda layer."""
 
 import click
-
 from boto3.session import Session as boto3_session
 from botocore.client import Config
 
@@ -48,8 +47,8 @@ CompatibleRuntimes_al2 = [
 
 
 @click.command()
-@click.argument('gdalversion', type=str)
-@click.option('--deploy', is_flag=True)
+@click.argument("gdalversion", type=str)
+@click.option("--deploy", is_flag=True)
 def main(gdalversion, deploy):
     """Build and Deploy Layers."""
     gdalversion_nodot = gdalversion.replace(".", "")
@@ -60,7 +59,7 @@ def main(gdalversion, deploy):
         session = boto3_session()
 
         # Increase connection timeout to work around timeout errors
-        config = Config(connect_timeout=6000, retries={'max_attempts': 5})
+        config = Config(connect_timeout=6000, retries={"max_attempts": 5})
 
         click.echo(f"Deploying {layer_name}", err=True)
         for region in AWS_REGIONS:
@@ -68,24 +67,24 @@ def main(gdalversion, deploy):
             client = session.client("lambda", region_name=region, config=config)
 
             click.echo("Publishing new version", err=True)
-            with open("package.zip", 'rb') as zf:
+            with open("package.zip", "rb") as zf:
                 res = client.publish_layer_version(
                     LayerName=layer_name,
                     Content={"ZipFile": zf.read()},
                     CompatibleRuntimes=CompatibleRuntimes_al2,
                     Description=description,
-                    LicenseInfo="MIT"
+                    LicenseInfo="MIT",
                 )
 
             click.echo("Adding permission", err=True)
             client.add_layer_version_permission(
                 LayerName=layer_name,
                 VersionNumber=res["Version"],
-                StatementId='make_public',
-                Action='lambda:GetLayerVersion',
-                Principal='*',
+                StatementId="make_public",
+                Action="lambda:GetLayerVersion",
+                Principal="*",
             )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
