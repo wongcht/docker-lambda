@@ -29,9 +29,9 @@ ENV PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig/:/usr/lib64/pkgconfig
 
 # sqlite
 RUN mkdir /tmp/sqlite \
-  && curl -sfL https://www.sqlite.org/2020/sqlite-autoconf-3330000.tar.gz | tar zxf - -C /tmp/sqlite --strip-components=1 \
+  && curl -sfL https://www.sqlite.org/2026/sqlite-autoconf-3510200.tar.gz | tar zxf - -C /tmp/sqlite --strip-components=1 \
   && cd /tmp/sqlite \
-  && CFLAGS="-O2 -Wl,-S" CXXFLAGS="-O2 -Wl,-S" ./configure --prefix=$PREFIX --disable-static \
+  && CFLAGS="-O2 -Wl,-S -DSQLITE_ENABLE_RTREE" CXXFLAGS="-O2 -Wl,-S" ./configure --prefix=$PREFIX --disable-static \
   && make -j $(nproc) --silent && make install && make clean \
   && rm -rf /tmp/sqlite
 
