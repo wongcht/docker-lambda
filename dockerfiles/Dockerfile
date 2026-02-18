@@ -1,6 +1,6 @@
 FROM public.ecr.aws/lambda/provided:al2023 AS builder
 
-LABEL maintainer="lambgeo <geolambdas@gmail.com>"
+LABEL maintainer="wongcht <wongcht.dev@gmail.com>"
 
 RUN dnf update -y && \
     dnf install -y git autoconf libtool flex bison cmake make \

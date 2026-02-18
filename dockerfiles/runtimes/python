@@ -1,13 +1,13 @@
 ARG GDAL_VERSION_TAG=x
 ARG RUNTIME_VERSION=x
 
-FROM ghcr.io/lambgeo/lambda-gdal:${GDAL_VERSION_TAG} AS gdal
+FROM ghcr.io/wongcht/lambda-gdal:${GDAL_VERSION_TAG} AS gdal
 
 FROM public.ecr.aws/lambda/python:${RUNTIME_VERSION}
 ARG PKG_INSTALLER
 ARG NUMPY_VERSION
 
-LABEL maintainer="lambgeo <geolambdas@gmail.com>"
+LABEL maintainer="wongcht <wongcht.dev@gmail.com>"
 
 ENV \
   LANG=en_US.UTF-8 \

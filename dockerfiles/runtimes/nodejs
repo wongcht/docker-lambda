@@ -1,11 +1,11 @@
 ARG GDAL_VERSION_TAG
 ARG RUNTIME_VERSION
 
-FROM ghcr.io/lambgeo/lambda-gdal:${GDAL_VERSION_TAG} as gdal
+FROM ghcr.io/wongcht/lambda-gdal:${GDAL_VERSION_TAG} as gdal
 
 FROM public.ecr.aws/lambda/nodejs:${RUNTIME_VERSION}
 
-LABEL maintainer="lambgeo <geolambdas@gmail.com>"
+LABEL maintainer="wongcht <wongcht.dev@gmail.com>"
 
 ENV \
   LANG=en_US.UTF-8 \
