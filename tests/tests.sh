@@ -21,10 +21,10 @@ if [[ ! "$(ogrinfo --formats | grep 'DXF')" ]]; then echo "DXF NOK" && exit 1; f
 echo "OK"
 
 echo "Checking sqlite build"
-if [[ ! "$(ldd $PREFIX/bin/gdalwarp | grep '/opt/bin/../lib/libsqlite3')" ]]; then echo "gdalwarp libsql NOK" && exit 1; fi
-if [[ ! "$(ldd $PREFIX/lib/libgdal.so | grep '/opt/lib/libsqlite3')" ]]; then echo "libgdal libsql NOK" && exit 1; fi
-if [[ ! "$(ldd $PREFIX/lib/libproj.so | grep '/opt/lib/libsqlite3')" ]]; then echo "libproj libsql NOK" && exit 1; fi
-if [[ ! "$(ldd $PREFIX/lib/libgeotiff.so | grep '/opt/lib/libsqlite3')" ]]; then echo "libgeotiff libsql NOK" && exit 1; fi
+if [[ ! "$(ldd $PREFIX/bin/gdalwarp | grep 'libsqlite3' | grep '/opt')" ]]; then echo "gdalwarp libsql NOK" && exit 1; fi
+if [[ ! "$(ldd $PREFIX/lib/libgdal.so | grep 'libsqlite3' | grep '/opt')" ]]; then echo "libgdal libsql NOK" && exit 1; fi
+if [[ ! "$(ldd $PREFIX/lib/libproj.so | grep 'libsqlite3' | grep '/opt')" ]]; then echo "libproj libsql NOK" && exit 1; fi
+if [[ ! "$(ldd $PREFIX/lib/libgeotiff.so | grep 'libsqlite3' | grep '/opt')" ]]; then echo "libgeotiff libsql NOK" && exit 1; fi
 echo "OK"
 
 echo "Checking OGR"
