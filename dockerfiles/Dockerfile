@@ -6,7 +6,7 @@ RUN dnf update -y && \
     dnf install -y git autoconf libtool flex bison cmake make \
       tar gzip gcc gcc-c++ automake libpng-devel nasm \
       libxml2-devel readline-devel openssl-devel libcurl-devel \
-      cmake && \
+      cmake libtirpc-devel && \
     dnf clean all && \
     rm -rf /var/cache/dnf
 
@@ -278,12 +278,14 @@ RUN mkdir /tmp/szip \
   && make -j $(nproc) --silent && make install && make clean \
   && rm -rf /tmp/szip
 
-# libhdf4
-ENV HDF4_VERSION=4.2.15
+# libhdf4 (needs libtirpc for rpc/rpc.h on AL2023; 4.2.16+ for C99/gcc compatibility)
+ENV HDF4_VERSION=4.3.1
 RUN mkdir /tmp/hdf4 \
-  && curl -sfL https://support.hdfgroup.org/ftp/HDF/releases/HDF${HDF4_VERSION}/src/hdf-${HDF4_VERSION}.tar | tar xvf - -C /tmp/hdf4 --strip-components=1 \
-  && cd /tmp/hdf4 \
-  && CFLAGS="-O2 -Wl,-S" CXXFLAGS="-O2 -Wl,-S" ./configure \
+  && curl -sfL https://github.com/HDFGroup/hdf4/releases/download/hdf${HDF4_VERSION}/hdf${HDF4_VERSION}.tar.gz | tar zxf - -C /tmp/hdf4 --strip-components=1 \
+  && cd /tmp/hdf4/hdf-${HDF4_VERSION} \
+  && CFLAGS="-O2 -Wl,-S" CXXFLAGS="-O2 -Wl,-S" \
+     CPPFLAGS="-I/usr/include/tirpc" LDFLAGS="-ltirpc" \
+     ./configure --build="$(case $(uname -m) in x86_64) echo x86_64-pc-linux-gnu;; aarch64|arm64) echo aarch64-unknown-linux-gnu;; *) echo x86_64-pc-linux-gnu;; esac)" \
   --prefix=$PREFIX \
   --with-szlib=$PREFIX \
   --with-jpeg=$PREFIX \
