@@ -419,8 +419,10 @@ COPY --from=builder /opt/include/ $PREFIX/include/
 COPY --from=builder /opt/share/ $PREFIX/share/
 COPY --from=builder /opt/bin/ $PREFIX/bin/
 
-# Install libtirpc runtime library required by ogrinfo
+# Install libtirpc runtime library required by ogr2ogr/ogrinfo (e.g. HDF4 driver).
+# Copy into $PREFIX/lib so the Lambda layer zip (which only packages /opt) includes it.
 RUN dnf install -y libtirpc && \
+    cp /usr/lib64/libtirpc.so* $PREFIX/lib/ && \
     dnf clean all && \
     rm -rf /var/cache/dnf
 
