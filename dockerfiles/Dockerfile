@@ -58,7 +58,7 @@ RUN mkdir /tmp/libxml2 \
   && rm -rf /tmp/libxml2
 
 # nghttp2
-ENV NGHTTP2_VERSION=1.42.0
+ENV NGHTTP2_VERSION=1.68.0
 RUN mkdir /tmp/nghttp2 \
   && curl -sfL https://github.com/nghttp2/nghttp2/releases/download/v${NGHTTP2_VERSION}/nghttp2-${NGHTTP2_VERSION}.tar.gz | tar zxf - -C /tmp/nghttp2 --strip-components=1 \
   && cd /tmp/nghttp2 \
@@ -67,11 +67,11 @@ RUN mkdir /tmp/nghttp2 \
   && rm -rf /tmp/nghttp2
 
 # libcurl
-ENV CURL_VERSION=7.73.0
+ENV CURL_VERSION=8.18.0
 RUN mkdir /tmp/libcurl \
   && curl -sfL https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz | tar zxf - -C /tmp/libcurl --strip-components=1 \
   && cd /tmp/libcurl \
-  && ./configure --disable-manual --disable-cookies --with-nghttp2=$PREFIX --prefix=$PREFIX \
+  && ./configure --disable-manual --disable-cookies --with-openssl --with-nghttp2=$PREFIX --prefix=$PREFIX \
   && make -j $(nproc) --silent && make install \
   && rm -rf /tmp/libcurl
 
