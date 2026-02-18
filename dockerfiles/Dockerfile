@@ -6,7 +6,7 @@ RUN dnf update -y && \
     dnf install -y git autoconf libtool flex bison cmake make \
       tar gzip gcc gcc-c++ automake libpng-devel nasm \
       libxml2-devel readline-devel openssl-devel libcurl-devel \
-      cmake libtirpc-devel && \
+      cmake libtirpc-devel libicu-devel perl && \
     dnf clean all && \
     rm -rf /var/cache/dnf
 
@@ -25,7 +25,7 @@ RUN mkdir /tmp/pkg-config \
   && make -j $(nproc) --silent && make install && make clean \
   && rm -rf /tmp/pkg-config
 
-ENV PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig/
+ENV PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig/:/usr/lib64/pkgconfig
 
 # sqlite
 RUN mkdir /tmp/sqlite \
@@ -156,7 +156,7 @@ RUN mkdir /tmp/libtiff \
   && rm -rf /tmp/libtiff
 
 # postgres
-ENV PG_VERSION=15.2
+ENV PG_VERSION=18.2
 RUN mkdir /tmp/postgres \
   && curl -sfL https://ftp.postgresql.org/pub/source/v${PG_VERSION}/postgresql-${PG_VERSION}.tar.gz | tar zxf - -C /tmp/postgres --strip-components=1 \
   && cd /tmp/postgres \
