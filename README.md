@@ -8,8 +8,8 @@
   <b>Amazonlinux Docker images and AWS Lambda layers with GDAL.</b>
 </p>
 <p align="center">
-  <a href="https://github.com/lambgeo/docker-lambda/actions?query=workflow%3ACI" target="_blank">
-      <img src="https://github.com/lambgeo/docker-lambda/workflows/CI/badge.svg" alt="Test">
+  <a href="https://github.com/wongcht/docker-lambda/actions?query=workflow%3ACI" target="_blank">
+      <img src="https://github.com/wongcht/docker-lambda/workflows/CI/badge.svg" alt="Test">
   </a>
 </p>
 <!-- markdownlint-enable -->

@@ -3,7 +3,7 @@ echo "-----------------------"
 echo "Creating lambda layer"
 echo "-----------------------"
 
-yum install -y zip binutils
+dnf install -y zip binutils findutils
 
 echo "Remove useless files"
 rm -rdf $PREFIX/share/doc \
