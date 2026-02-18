@@ -120,9 +120,9 @@ jobs:
             /local/scripts/create-layer.sh
           python scripts/deploy.py ${{ env.GDAL_VERSION_TAG }} --deploy
 
-      - name: Build Runtime and Push Python >= 3.12 with dnf
+      - name: Build Runtime and Push Python >= 3.11 with dnf
         run: |
-          runtimes='3.12 3.13'
+          runtimes='3.11 3.12 3.13'
           for runtime in ${runtimes}; do
             docker build \
               --platform=linux/amd64 \
