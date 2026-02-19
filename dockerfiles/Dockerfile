@@ -77,22 +77,28 @@ RUN mkdir /tmp/libcurl \
 
 # libdeflate
 RUN mkdir /tmp/libdeflate \
-  && curl -sfL https://github.com/ebiggers/libdeflate/archive/v1.10.tar.gz | tar zxf - -C /tmp/libdeflate --strip-components=1 \
+  && curl -sfL https://github.com/ebiggers/libdeflate/archive/v1.25.tar.gz | tar zxf - -C /tmp/libdeflate --strip-components=1 \
   && cd /tmp/libdeflate \
-  && make -j $(nproc) --silent PREFIX=$PREFIX && make install \
+  && mkdir build && cd build \
+  && cmake .. \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX:PATH=$PREFIX \
+    -DCMAKE_INSTALL_LIBDIR:PATH=lib \
+    -DCMAKE_C_FLAGS="-O2 -Wl,-S" \
+  && make -j $(nproc) --silent && make install \
   && rm -rf /tmp/libdeflate
 
 # libpng
-ENV LIBPNG_VERSION=1.6.37
+ENV LIBPNG_VERSION=1.6.55
 RUN mkdir /tmp/png \
-  && curl -sfL https://github.com/glennrp/libpng/archive/v${LIBPNG_VERSION}.tar.gz | tar zxf - -C /tmp/png --strip-components=1 \
+  && curl -sfL https://github.com/pnggroup/libpng/archive/refs/tags/v${LIBPNG_VERSION}.tar.gz | tar zxf - -C /tmp/png --strip-components=1 \
   && cd /tmp/png \
   && CFLAGS="-O2 -Wl,-S" CXXFLAGS="-O2 -Wl,-S" ./configure --prefix=$PREFIX \
   && make -j $(nproc) --silent && make install \
   && rm -rf /tmp/png
 
 # libjpeg_turbo
-ENV LIBJPEG_TURBO_VERSION=2.1.3
+ENV LIBJPEG_TURBO_VERSION=3.1.3
 RUN mkdir /tmp/jpeg \
   && curl -sfL https://github.com/libjpeg-turbo/libjpeg-turbo/archive/${LIBJPEG_TURBO_VERSION}.tar.gz | tar zxf - -C /tmp/jpeg --strip-components=1 \
   && cd /tmp/jpeg \
@@ -107,7 +113,7 @@ RUN mkdir /tmp/jpeg \
   && rm -rf /tmp/jpeg
 
 # webp
-ENV WEBP_VERSION=1.1.0
+ENV WEBP_VERSION=1.6.0
 RUN mkdir /tmp/webp \
   && curl -sfL https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-${WEBP_VERSION}.tar.gz | tar zxf - -C /tmp/webp --strip-components=1 \
   && cd /tmp/webp \
@@ -116,19 +122,20 @@ RUN mkdir /tmp/webp \
   && rm -rf /tmp/webp
 
 # zstd
-ENV ZSTD_VERSION=1.4.5
+ENV ZSTD_VERSION=1.5.7
 RUN mkdir /tmp/zstd \
   && curl -sfL https://github.com/facebook/zstd/archive/v${ZSTD_VERSION}.tar.gz | tar zxf - -C /tmp/zstd --strip-components=1 \
   && cd /tmp/zstd \
-  && make -j $(nproc) PREFIX=$PREFIX ZSTD_LEGACY_SUPPORT=0 CFLAGS=-O1 --silent && make install PREFIX=$PREFIX ZSTD_LEGACY_SUPPORT=0 CFLAGS=-O1 \
+  && make -j $(nproc) PREFIX=$PREFIX ZSTD_LEGACY_SUPPORT=0 CFLAGS="-O1 -fPIC" --silent && make install PREFIX=$PREFIX ZSTD_LEGACY_SUPPORT=0 CFLAGS="-O1 -fPIC" \
   && rm -rf /tmp/zstd
 
 # lerc
-ENV LERC_VERSION=2.2.1
+ENV LERC_VERSION=4.0.0
 RUN mkdir /tmp/lerc \
   && curl -sfL https://github.com/Esri/lerc/archive/v${LERC_VERSION}.tar.gz | tar zxf - -C /tmp/lerc --strip-components=1 \
   && cd /tmp/lerc \
-  && cmake . \
+  && rm -rf build && mkdir build && cd build \
+  && cmake .. \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX:PATH=$PREFIX \
     -DCMAKE_INSTALL_LIBDIR:PATH=lib \
@@ -138,7 +145,7 @@ RUN mkdir /tmp/lerc \
   && rm -rf /tmp/lerc
 
 # libtiff
-ENV LIBTIFF_VERSION=4.5.0
+ENV LIBTIFF_VERSION=4.7.1
 RUN mkdir /tmp/libtiff \
   && curl -sfL https://download.osgeo.org/libtiff/tiff-${LIBTIFF_VERSION}.tar.gz | tar zxf - -C /tmp/libtiff --strip-components=1 \
   && cd /tmp/libtiff \
@@ -165,7 +172,7 @@ RUN mkdir /tmp/postgres \
   && rm -rf /tmp/postgres
 
 # openjpeg
-ENV OPENJPEG_VERSION=2.5.0
+ENV OPENJPEG_VERSION=2.5.4
 RUN mkdir /tmp/openjpeg \
   && curl -sfL https://github.com/uclouvain/openjpeg/archive/v${OPENJPEG_VERSION}.tar.gz | tar zxf - -C /tmp/openjpeg --strip-components=1 \
   && cd /tmp/openjpeg \
@@ -264,7 +271,7 @@ RUN mkdir /tmp/blosc \
 
 # libcrypto (for GPC access)
 RUN mkdir /tmp/cryptopp \
-  && curl -sfL https://github.com/weidai11/cryptopp/archive/refs/tags/CRYPTOPP_8_6_0.tar.gz | tar zxf - -C /tmp/cryptopp --strip-components=1 \
+  && curl -sfL https://github.com/weidai11/cryptopp/archive/refs/tags/CRYPTOPP_8_9_0.tar.gz | tar zxf - -C /tmp/cryptopp --strip-components=1 \
   && cd /tmp/cryptopp \
   && make -j $(nproc) --silent && make install PREFIX=$PREFIX \
   && rm -rf /tmp/cryptopp
@@ -311,6 +318,7 @@ RUN mkdir /tmp/hdf5 \
   && rm -rf /tmp/hdf5
 
 # NetCDF
+# ENV NETCDF_VERSION=4.9.3 conflicts with GDAL
 ENV NETCDF_VERSION=4.7.4
 RUN mkdir /tmp/netcdf \
   && curl -sfL https://github.com/Unidata/netcdf-c/archive/v${NETCDF_VERSION}.tar.gz | tar zxf - -C /tmp/netcdf --strip-components=1 \
@@ -383,7 +391,7 @@ RUN mkdir /tmp/gdal \
     -DGDAL_USE_GEOTIFF_INTERNAL=OFF \
     -DGDAL_USE_LERC_INTERNAL=OFF \
     -DLERC_INCLUDE_DIR=$PREFIX/include \
-    -DLERC_LIBRARY=$PREFIX/lib/libLercLib.so \
+    -DLERC_LIBRARY=$PREFIX/lib/libLerc.so \
     -DPNG_PNG_INCLUDE_DIR=$PREFIX/include \
     -DPNG_LIBRARY_RELEASE=$PREFIX/lib/libpng.so \
     -DSQLite3_INCLUDE_DIR=$PREFIX/include \
@@ -394,7 +402,7 @@ RUN mkdir /tmp/gdal \
 
 # from https://github.com/pypa/manylinux/blob/d8ef5d47433ba771fa4403fd48f352c586e06e43/docker/build_scripts/build.sh#L133-L138
 # Install patchelf (latest with unreleased bug fixes)
-ENV PATCHELF_VERSION=0.10
+ENV PATCHELF_VERSION=0.18.0
 RUN mkdir /tmp/patchelf \
   && curl -sfL https://github.com/NixOS/patchelf/archive/${PATCHELF_VERSION}.tar.gz | tar zxf - -C /tmp/patchelf --strip-components=1 \
   && cd /tmp/patchelf && ./bootstrap.sh && ./configure \
