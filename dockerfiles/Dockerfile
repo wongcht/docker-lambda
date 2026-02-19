@@ -245,29 +245,29 @@ RUN mkdir /tmp/libgeotiff \
   && make -j $(nproc) --silent && make install \
   && rm -rf /tmp/libgeotiff
 
-# Build blosc (needed for ZARR)
-ENV BLOSC_VERSION=1.21.6
-RUN mkdir /tmp/blosc \
-  && curl -sfL https://github.com/Blosc/c-blosc/archive/refs/tags/v${BLOSC_VERSION}.tar.gz | tar zxf - -C /tmp/blosc --strip-components=1 \
-  && cd /tmp/blosc \
+# Build blosc2 (needed for ZARR)
+ENV BLOSC2_VERSION=2.23.0
+RUN mkdir /tmp/blosc2 \
+  && curl -sfL https://github.com/Blosc/c-blosc2/archive/refs/tags/v${BLOSC2_VERSION}.tar.gz | tar zxf - -C /tmp/blosc2 --strip-components=1 \
+  && cd /tmp/blosc2 \
   && cmake -G"Unix Makefiles" \
     -DCMAKE_INSTALL_PREFIX:PATH=$PREFIX \
     -DCMAKE_INSTALL_LIBDIR:PATH=lib \
     -DCMAKE_INSTALL_RPATH="$ORIGIN" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_C_FLAGS="-O2 -Wl,-S" \
-    -DCMAKE_CXX_FLAGS="-O2 -Wl,-S" \
+    -DBUILD_SHARED_LIBS=ON \
     -DBUILD_SHARED=ON \
     -DBUILD_STATIC=OFF \
     -DBUILD_BENCHMARKS=OFF \
     -DBUILD_FUZZERS=OFF \
     -DBUILD_TESTS=OFF \
+    -DBUILD_EXAMPLES=OFF \
     -DPREFER_EXTERNAL_LZ4=ON \
     -DPREFER_EXTERNAL_ZLIB=ON \
-    -DPREFER_EXTERNAL_ZSTD=ON \
-    -DDEACTIVATE_SNAPPY=OFF . \
+    -DPREFER_EXTERNAL_ZSTD=ON . \
   && make -j $(nproc) --silent && make install && make clean \
-  && rm -rf /tmp/blosc
+  && rm -rf /tmp/blosc2
 
 # libcrypto (for GPC access)
 RUN mkdir /tmp/cryptopp \
