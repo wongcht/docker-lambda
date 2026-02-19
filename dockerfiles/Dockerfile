@@ -286,7 +286,7 @@ RUN mkdir /tmp/cryptopp \
   && make -j $(nproc) --silent && make install PREFIX=$PREFIX \
   && rm -rf /tmp/cryptopp
 
-# szip (for hdf)
+# szip (for hdf4)
 ENV SZIP_VERSION=2.1.1
 RUN mkdir /tmp/szip \
   && curl -sfL https://support.hdfgroup.org/ftp/lib-external/szip/${SZIP_VERSION}/src/szip-${SZIP_VERSION}.tar.gz | tar zxf - -C /tmp/szip --strip-components=1 \
@@ -294,6 +294,21 @@ RUN mkdir /tmp/szip \
   && CFLAGS="-O2 -Wl,-S" CXXFLAGS="-O2 -Wl,-S" ./configure --prefix=$PREFIX --disable-static \
   && make -j $(nproc) --silent && make install && make clean \
   && rm -rf /tmp/szip
+
+# libaec (for hdf5 2.0.0+)
+ENV LIBAEC_VERSION=1.1.3
+RUN mkdir /tmp/libaec \
+  && curl -sfL https://gitlab.dkrz.de/k202009/libaec/-/archive/v${LIBAEC_VERSION}/libaec-v${LIBAEC_VERSION}.tar.gz | tar zxf - -C /tmp/libaec --strip-components=1 \
+  && cd /tmp/libaec \
+  && mkdir build && cd build \
+  && cmake .. \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX:PATH=$PREFIX \
+    -DCMAKE_INSTALL_LIBDIR:PATH=lib \
+    -DCMAKE_C_FLAGS="-O2 -Wl,-S" \
+    -DBUILD_SHARED_LIBS=ON \
+  && make -j $(nproc) --silent && make install && make clean \
+  && rm -rf /tmp/libaec
 
 # libhdf4 (needs libtirpc for rpc/rpc.h on AL2023; 4.2.16+ for C99/gcc compatibility)
 ENV HDF4_VERSION=4.3.1
@@ -314,15 +329,23 @@ RUN mkdir /tmp/hdf4 \
   && rm -rf /tmp/hdf4
 
 # libhdf5
-ENV HDF5_VERSION=1.14.6
+ENV HDF5_VERSION=2.0.0
 RUN mkdir /tmp/hdf5 \
-  && curl -sfL https://github.com/HDFGroup/hdf5/releases/download/hdf5_${HDF5_VERSION}/hdf5-${HDF5_VERSION}.tar.gz | tar zxf - -C /tmp/hdf5 \
-  && cd /tmp/hdf5/hdf5-${HDF5_VERSION} \
-  && CFLAGS="-O2 -Wl,-S" CXXFLAGS="-O2 -Wl,-S" ./configure \
-  --prefix=$PREFIX \
-  --with-szlib=$PREFIX \
-  --enable-cxx \
-  --disable-static \
+  && curl -sfL https://github.com/HDFGroup/hdf5/archive/refs/tags/${HDF5_VERSION}.tar.gz | tar zxf - -C /tmp/hdf5 --strip-components=1 \
+  && cd /tmp/hdf5 \
+  && mkdir build && cd build \
+  && cmake .. \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX:PATH=$PREFIX \
+    -DCMAKE_INSTALL_LIBDIR:PATH=lib \
+    -DCMAKE_PREFIX_PATH=$PREFIX \
+    -DCMAKE_C_FLAGS="-O2 -Wl,-S" \
+    -DCMAKE_CXX_FLAGS="-O2 -Wl,-S" \
+    -DHDF5_ENABLE_SZIP_SUPPORT=ON \
+    -DHDF5_ENABLE_ZLIB_SUPPORT=ON \
+    -DHDF5_BUILD_CPP_LIB=ON \
+    -DBUILD_SHARED_LIBS=ON \
+    -DHDF5_BUILD_STATIC_LIBS=OFF \
   && make -j $(nproc) --silent && make install && make clean \
   && rm -rf /tmp/hdf5
 
