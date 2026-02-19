@@ -318,11 +318,18 @@ ENV HDF5_VERSION=2.0.0
 RUN mkdir /tmp/hdf5 \
   && curl -sfL https://github.com/HDFGroup/hdf5/archive/refs/tags/${HDF5_VERSION}.tar.gz | tar zxf - -C /tmp/hdf5 --strip-components=1 \
   && cd /tmp/hdf5 \
-  && CFLAGS="-O2 -Wl,-S" CXXFLAGS="-O2 -Wl,-S" ./configure \
-  --prefix=$PREFIX \
-  --with-szlib=$PREFIX \
-  --enable-cxx \
-  --disable-static \
+  && mkdir build && cd build \
+  && cmake .. \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX:PATH=$PREFIX \
+    -DCMAKE_INSTALL_LIBDIR:PATH=lib \
+    -DCMAKE_C_FLAGS="-O2 -Wl,-S" \
+    -DCMAKE_CXX_FLAGS="-O2 -Wl,-S" \
+    -DHDF5_ENABLE_SZIP_SUPPORT=ON \
+    -DSZIP_DIR=$PREFIX \
+    -DHDF5_BUILD_CPP_LIB=ON \
+    -DBUILD_SHARED_LIBS=ON \
+    -DHDF5_BUILD_STATIC_LIBS=OFF \
   && make -j $(nproc) --silent && make install && make clean \
   && rm -rf /tmp/hdf5
 
