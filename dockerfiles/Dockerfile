@@ -304,15 +304,14 @@ RUN mkdir /tmp/hdf4 \
   && rm -rf /tmp/hdf4
 
 # libhdf5
-ENV HDF5_VERSION=1.12.0
+ENV HDF5_VERSION=1.14.6
 RUN mkdir /tmp/hdf5 \
-  && curl -sfL https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${HDF5_VERSION%.*}/hdf5-${HDF5_VERSION}/src/hdf5-$HDF5_VERSION.tar.gz | tar zxf - -C /tmp/hdf5 --strip-components=1 \
-  && cd /tmp/hdf5 \
+  && curl -sfL https://github.com/HDFGroup/hdf5/releases/download/hdf5_${HDF5_VERSION}/hdf5-${HDF5_VERSION}.tar.gz | tar zxf - -C /tmp/hdf5 \
+  && cd /tmp/hdf5/hdf5-${HDF5_VERSION} \
   && CFLAGS="-O2 -Wl,-S" CXXFLAGS="-O2 -Wl,-S" ./configure \
   --prefix=$PREFIX \
   --with-szlib=$PREFIX \
   --enable-cxx \
-  --enable-thread-safe \
   --disable-static \
   && make -j $(nproc) --silent && make install && make clean \
   && rm -rf /tmp/hdf5
