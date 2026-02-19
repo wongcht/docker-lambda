@@ -245,11 +245,11 @@ RUN mkdir /tmp/libgeotiff \
   && make -j $(nproc) --silent && make install \
   && rm -rf /tmp/libgeotiff
 
-# Build blosc (needed for ZARR)
-ENV BLOSC_VERSION=1.21.6
-RUN mkdir /tmp/blosc \
-  && curl -sfL https://github.com/Blosc/c-blosc/archive/refs/tags/v${BLOSC_VERSION}.tar.gz | tar zxf - -C /tmp/blosc --strip-components=1 \
-  && cd /tmp/blosc \
+# Build blosc2 (needed for ZARR)
+ENV BLOSC2_VERSION=2.23.0
+RUN mkdir /tmp/blosc2 \
+  && curl -sfL https://github.com/Blosc/c-blosc2/archive/refs/tags/v${BLOSC2_VERSION}.tar.gz | tar zxf - -C /tmp/blosc2 --strip-components=1 \
+  && cd /tmp/blosc2 \
   && cmake -G"Unix Makefiles" \
     -DCMAKE_INSTALL_PREFIX:PATH=$PREFIX \
     -DCMAKE_INSTALL_LIBDIR:PATH=lib \
@@ -267,7 +267,7 @@ RUN mkdir /tmp/blosc \
     -DPREFER_EXTERNAL_ZSTD=ON \
     -DDEACTIVATE_SNAPPY=OFF . \
   && make -j $(nproc) --silent && make install && make clean \
-  && rm -rf /tmp/blosc
+  && rm -rf /tmp/blosc2
 
 # libcrypto (for GPC access)
 RUN mkdir /tmp/cryptopp \
