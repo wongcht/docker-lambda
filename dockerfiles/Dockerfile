@@ -256,7 +256,7 @@ RUN mkdir /tmp/blosc2 \
     -DCMAKE_INSTALL_RPATH="$ORIGIN" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_C_FLAGS="-O2 -Wl,-S" \
-    -DCMAKE_CXX_FLAGS="-O2 -Wl,-S" \
+    -DBUILD_SHARED_LIBS=ON \
     -DBUILD_SHARED=ON \
     -DBUILD_STATIC=OFF \
     -DBUILD_BENCHMARKS=OFF \
@@ -265,8 +265,7 @@ RUN mkdir /tmp/blosc2 \
     -DBUILD_EXAMPLES=OFF \
     -DPREFER_EXTERNAL_LZ4=ON \
     -DPREFER_EXTERNAL_ZLIB=ON \
-    -DPREFER_EXTERNAL_ZSTD=ON \
-    -DDEACTIVATE_SNAPPY=OFF . \
+    -DPREFER_EXTERNAL_ZSTD=ON . \
   && make -j $(nproc) --silent && make install && make clean \
   && rm -rf /tmp/blosc2
 
