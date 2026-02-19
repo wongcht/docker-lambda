@@ -3,12 +3,22 @@ FROM public.ecr.aws/lambda/provided:al2023 AS builder
 LABEL maintainer="wongcht <wongcht.dev@gmail.com>"
 
 RUN dnf update -y && \
-    dnf install -y git autoconf libtool flex bison cmake make \
+    dnf install -y git autoconf libtool flex bison make \
       tar gzip gcc gcc-c++ automake libpng-devel nasm \
       libxml2-devel readline-devel openssl-devel libcurl-devel \
-      cmake libtirpc-devel libicu-devel perl && \
+      libtirpc-devel libicu-devel perl && \
     dnf clean all && \
     rm -rf /var/cache/dnf
+
+# Install CMake 3.26+ (required for HDF5 2.0.0)
+ENV CMAKE_VERSION=4.2.3
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" = "x86_64" ]; then CMAKE_ARCH="x86_64"; \
+    elif [ "$ARCH" = "aarch64" ]; then CMAKE_ARCH="aarch64"; \
+    else CMAKE_ARCH="x86_64"; fi && \
+    curl -sfL https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-${CMAKE_ARCH}.tar.gz | tar zxf - -C /tmp && \
+    cp -r /tmp/cmake-${CMAKE_VERSION}-linux-${CMAKE_ARCH}/* /usr/local/ && \
+    rm -rf /tmp/cmake-${CMAKE_VERSION}-linux-${CMAKE_ARCH}
 
 ENV PREFIX=/opt
 
