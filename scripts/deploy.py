@@ -51,7 +51,7 @@ def main(gdalversion, deploy):
     """Build and Deploy Layers."""
     gdalversion_nodot = gdalversion.replace(".", "")
     layer_name = f"gdal{gdalversion_nodot}"
-    description = f"Lambda Layer with GDAL{gdalversion} for amazonlinux2"
+    description = f"Lambda Layer with GDAL{gdalversion} for Amazon Linux 2023"
 
     if deploy:
         session = boto3_session()
