@@ -14,6 +14,10 @@
 </p>
 <!-- markdownlint-enable -->
 
+## TL;DR — Add the GDAL 3.12 Layer ARN in Your Lambda
+
+Follow the [instruction](https://medium.com/@devlog/gdal-in-aws-lambda-stop-annoying-installation-and-just-use-a-layer-7a5ae946ffde)
+
 # Docker Images
 
 Based on `public.ecr.aws/lambda/provided:al2023` (Amazon Linux 2023)
