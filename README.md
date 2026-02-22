@@ -23,7 +23,7 @@ Follow the [instruction](https://medium.com/@devlog/gdal-in-aws-lambda-stop-anno
 Based on `public.ecr.aws/lambda/provided:al2023` (Amazon Linux 2023)
 
 - GDAL 3.12.2
-  - **ghcr.io/wongcht/lambda-gdal:3.8** (Feb 2026)
+  - **ghcr.io/wongcht/lambda-gdal:3.12** (Feb 2026)
 
 Runtimes images:
 
@@ -138,14 +138,14 @@ see [/layer.json](/layer.json) for the list of arns
 ### Find the arn version
 
 ```bash
-cat layer.json| jq '.[] | select(.region == "us-west-2")'
+cat layer.json| jq '.[] | select(.region == "eu-west-2")'
 {
-  "region": "us-west-2",
+  "region": "eu-west-2",
   "layers": [
     {
-      "name": "gdal36",
-      "arn": "arn:aws:lambda:us-west-2:959051626939:layer:gdal38:2",
-      "version": 2
+      "name": "gdal312",
+      "arn": "arn:aws:lambda:eu-west-2:959051626939:layer:gdal312:5",
+      "version": 5
     }
   ]
 }
