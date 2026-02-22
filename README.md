@@ -16,25 +16,18 @@
 
 # Docker Images
 
-Based on `public.ecr.aws/lambda/provided:al2` (AmazonLinux 2)
+Based on `public.ecr.aws/lambda/provided:al2023` (Amazon Linux 2023)
 
-- GDAL 3.8.3
-  - **ghcr.io/lambgeo/lambda-gdal:3.8** (Fev 2024)
+- GDAL 3.12.2
+  - **ghcr.io/wongcht/lambda-gdal:3.8** (Feb 2026)
 
 Runtimes images:
 
 - Python (based on `public.ecr.aws/lambda/python:{version}`)
-  - **ghcr.io/lambgeo/lambda-gdal:3.8-python3.9**
-  - **ghcr.io/lambgeo/lambda-gdal:3.8-python3.10**
-  - **ghcr.io/lambgeo/lambda-gdal:3.8-python3.11**
+  - **ghcr.io/wongcht/lambda-gdal:3.12-python3.12**
+  - **ghcr.io/wongcht/lambda-gdal:3.12-python3.13**
 
-**archived**
-  - **ghcr.io/lambgeo/lambda-gdal:3.6**
-  - **ghcr.io/lambgeo/lambda-gdal:3.6-python3.9**
-  - **ghcr.io/lambgeo/lambda-gdal:3.6-python3.10**
-  - **ghcr.io/lambgeo/lambda-gdal:3.6-python3.11**
-
-see: <https://github.com/lambgeo/docker-lambda/pkgs/container/lambda-gdal>
+see: <https://github.com/wongcht/docker-lambda/pkgs/container/lambda-gdal>
 
 ### Creating Lambda packages
 
@@ -43,14 +36,14 @@ see: <https://github.com/lambgeo/docker-lambda/pkgs/container/lambda-gdal>
 #### 1. Create Dockerfile
 
 ```Dockerfile
-FROM ghcr.io/lambgeo/lambda-gdal:3.8 AS gdal
+FROM ghcr.io/wongcht/lambda-gdal:3.12 AS gdal
 
 # We use the official AWS Lambda image
 FROM public.ecr.aws/lambda/{RUNTIME: python|node|go...}:{RUNTIME version}
 
 ENV PACKAGE_PREFIX=/var/task
 
-# Bring C libs from lambgeo/lambda-gdal image
+# Bring C libs from wongcht/lambda-gdal image
 COPY --from=gdal /opt/lib/ ${PACKAGE_PREFIX}/lib/
 COPY --from=gdal /opt/include/ ${PACKAGE_PREFIX}/include/
 COPY --from=gdal /opt/share/ ${PACKAGE_PREFIX}/share/
@@ -69,10 +62,10 @@ ENV \
 RUN cd $PACKAGE_PREFIX && zip -r9q /tmp/package.zip *
 ```
 
-If you are working with **python3.9|3.10|3.11|3.12|3.13**, you can use lambgeo pre-build docker images:
+If you are working with **python3.12|3.13**, you can use wongcht pre-build docker images:
 
 ```Dockerfile
-FROM ghcr.io/lambgeo/lambda-gdal:3.8-python3.10
+FROM ghcr.io/wongcht/lambda-gdal:3.12-python3.13
 
 ENV PACKAGE_PREFIX=/var/task
 
@@ -134,7 +127,7 @@ Starting with gdal3.1 (PROJ 7.1), you can set `PROJ_NETWORK=ON` to use [remote g
 
 | gdal | amazonlinux version | size (Mb) | unzipped size (Mb) | arn                                                         |
 | ---- | ------------------- | --------- | ------------------ | ----------------------------------------------------------- |
-| 3.8  | 4                   | TBD       | TBD                | arn:aws:lambda:{REGION}:524387336408:layer:gdal38:{VERSION} |
+| 3.12  | 5                   | TBD       | TBD                | arn:aws:lambda:{REGION}:959051626939:layer:gdal312:{VERSION} |
 
 see [/layer.json](/layer.json) for the list of arns
 
@@ -147,14 +140,14 @@ cat layer.json| jq '.[] | select(.region == "us-west-2")'
   "layers": [
     {
       "name": "gdal36",
-      "arn": "arn:aws:lambda:us-west-2:524387336408:layer:gdal38:2",
+      "arn": "arn:aws:lambda:us-west-2:959051626939:layer:gdal38:2",
       "version": 2
     }
   ]
 }
 ```
 
-### archived layers
+### archived layers (from [lambgeo](https://github.com/lambgeo/docker-lambda))
 
 | gdal | amazonlinux version | size (Mb) | unzipped size (Mb) | arn                                                             |
 | ---- | ------------------- | --------- | ------------------ | --------------------------------------------------------------- |
@@ -205,7 +198,7 @@ package.zip
 
 **AWS Lambda Config:**
 
-- arn: `arn:aws:lambda:us-east-1:524387336408:layer:gdal38:1` (example)
+- arn: `arn:aws:lambda:us-east-1:959051626939:layer:gdal312:5` (example)
 - env:
   - **GDAL_DATA:** /opt/share/gdal
   - **PROJ_LIB:** /opt/share/proj
@@ -218,12 +211,12 @@ If your lambda handler needs more dependencies you'll have to use the exact same
 ##### Create a Dockerfile
 
 ```dockerfile
-FROM ghcr.io/lambgeo/lambda-gdal:3.8 AS gdal
+FROM ghcr.io/wongcht/lambda-gdal:3.12 AS gdal
 
-# This example assume that you are creating a lambda package for python 3.10
-FROM public.ecr.aws/lambda/python:3.10
+# This example assume that you are creating a lambda package for python 3.13
+FROM public.ecr.aws/lambda/python:3.13
 
-# Bring C libs from lambgeo/lambda-gdal image
+# Bring C libs from wongcht/lambda-gdal image
 COPY --from=gdal /opt/lib/ /opt/lib/
 COPY --from=gdal /opt/include/ /opt/include/
 COPY --from=gdal /opt/share/ /opt/share/
@@ -242,8 +235,8 @@ ENV PACKAGE_PREFIX=/var/task
 COPY handler.py ${PACKAGE_PREFIX}/handler.py
 
 # install package
-# This example shows how to install GDAL python bindings for gdal 3.6
-# The GDAL version should be the same as the one provided by the `lambgeo/lambda-gdal` image
+# This example shows how to install GDAL python bindings for gdal 3.12
+# The GDAL version should be the same as the one provided by the `wongcht/lambda-gdal` image
 RUN python -m pip install GDAL==$(gdal-config --version) -t $PACKAGE_PREFIX
 
 # Create package.zip
@@ -273,7 +266,7 @@ package.zip
 
 **AWS Lambda Config:**
 
-- arn: `arn:aws:lambda:us-east-1:524387336408:layer:gdal38:1` (example)
+- arn: `arn:aws:lambda:us-east-1:959051626939:layer:gdal312:1` (example)
 - env:
   - **GDAL_DATA:** /opt/share/gdal
   - **PROJ_LIB:** /opt/share/proj
