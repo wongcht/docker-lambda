@@ -261,7 +261,7 @@ jobs:
           python scripts/list.py | jq > layer.json
 
       - name: Update resources
-        uses: test-room-7/action-update-file@v2.0.0
+        uses: test-room-7/action-update-file@v2.1.0
         with:
             file-path: layer.json
             commit-msg: Update layer [skip ci]
