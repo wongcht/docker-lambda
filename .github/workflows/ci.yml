@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
 
 env:
-  GDAL_VERSION_TAG: 3.12
+  GDAL_VERSION_TAG: 3.13
 
 jobs:
   build:
