@@ -19,4 +19,4 @@ cd $PREFIX && zip -r9q --symlinks /tmp/package.zip lib/*.so*
 cd $PREFIX && zip -r9q --symlinks /tmp/package.zip share
 cd $PREFIX && zip -r9q --symlinks /tmp/package.zip bin/gdal* bin/ogr* bin/geos* bin/nearblack bin/postgres bin/pg_* bin/proj*
 
-cp /tmp/package.zip /local/package.zip
+cp /tmp/package.zip /local/${OUTPUT_ZIP:-package.zip}

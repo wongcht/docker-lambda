@@ -47,11 +47,23 @@ CompatibleRuntimes_al2023 = [
 @click.command()
 @click.argument("gdalversion", type=str)
 @click.option("--deploy", is_flag=True)
-def main(gdalversion, deploy):
+@click.option(
+    "--arch",
+    type=click.Choice(["x86_64", "arm64"]),
+    default="x86_64",
+    help="Target Lambda architecture for this layer.",
+)
+@click.option(
+    "--package",
+    type=str,
+    default="package.zip",
+    help="Path to the layer zip built for --arch.",
+)
+def main(gdalversion, deploy, arch, package):
     """Build and Deploy Layers."""
     gdalversion_nodot = gdalversion.replace(".", "")
-    layer_name = f"gdal{gdalversion_nodot}"
-    description = f"Lambda Layer with GDAL{gdalversion} for Amazon Linux 2023"
+    layer_name = f"gdal{gdalversion_nodot}-{arch}"
+    description = f"Lambda Layer with GDAL{gdalversion} for Amazon Linux 2023 ({arch})"
 
     if deploy:
         session = boto3_session()
@@ -65,11 +77,12 @@ def main(gdalversion, deploy):
             client = session.client("lambda", region_name=region, config=config)
 
             click.echo("Publishing new version", err=True)
-            with open("package.zip", "rb") as zf:
+            with open(package, "rb") as zf:
                 res = client.publish_layer_version(
                     LayerName=layer_name,
                     Content={"ZipFile": zf.read()},
                     CompatibleRuntimes=CompatibleRuntimes_al2023,
+                    CompatibleArchitectures=[arch],
                     Description=description,
                     LicenseInfo="MIT",
                 )

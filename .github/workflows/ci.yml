@@ -23,6 +23,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
     steps:
       - uses: actions/checkout@v6
 
@@ -35,6 +38,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install boto3 click
+
+      - name: Set up QEMU
+        if: matrix.arch == 'arm64'
+        uses: docker/setup-qemu-action@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -49,23 +56,23 @@ jobs:
       - name: Build
         uses: docker/build-push-action@v6
         with:
-          platforms: linux/amd64
+          platforms: linux/${{ matrix.arch }}
           context: .
           load: true
           file: dockerfiles/Dockerfile
           build-args: |
             GDAL_VERSION=${{ env.GDAL_VERSION }}
-          tags: ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ env.GDAL_VERSION_TAG }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ env.GDAL_VERSION_TAG }}-${{ matrix.arch }}
+          cache-from: type=gha,scope=${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.arch }}
 
       - name: Test
         run: |
           docker run \
-            --platform=linux/amd64 \
+            --platform=linux/${{ matrix.arch }} \
             --entrypoint bash \
             -v ${{ github.workspace }}:/local \
-            --rm ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ env.GDAL_VERSION_TAG }} \
+            --rm ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ env.GDAL_VERSION_TAG }}-${{ matrix.arch }} \
             /local/tests/tests.sh
 
   deploy:
@@ -79,6 +86,9 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.13'
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -100,39 +110,45 @@ jobs:
       - name: Publish docker image
         uses: docker/build-push-action@v6
         with:
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           context: .
           file: dockerfiles/Dockerfile
           build-args: |
             GDAL_VERSION=${{ env.GDAL_VERSION }}
           push: true
-          cache-from: type=gha
+          cache-from: |
+            type=gha,scope=amd64
+            type=gha,scope=arm64
           tags: ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ env.GDAL_VERSION_TAG }}
 
       - name: Build and Deploy layers
         run: |
           python -m pip install boto3 click
-          docker run \
-            --platform=linux/amd64 \
-            --entrypoint bash \
-            -v ${{ github.workspace }}:/local \
-            --rm ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ env.GDAL_VERSION_TAG }} \
-            /local/scripts/create-layer.sh
-          python scripts/deploy.py ${{ env.GDAL_VERSION_TAG }} --deploy
+          declare -A LAMBDA_ARCH=( [amd64]=x86_64 [arm64]=arm64 )
+          for arch in amd64 arm64; do
+            docker run \
+              --platform=linux/${arch} \
+              --entrypoint bash \
+              -e OUTPUT_ZIP=package-${arch}.zip \
+              -v ${{ github.workspace }}:/local \
+              --rm ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ env.GDAL_VERSION_TAG }} \
+              /local/scripts/create-layer.sh
+            python scripts/deploy.py ${{ env.GDAL_VERSION_TAG }} --arch ${LAMBDA_ARCH[$arch]} --package package-${arch}.zip --deploy
+          done
 
       - name: Build Runtime and Push Python >= 3.12 with dnf
         run: |
           runtimes='3.12 3.13'
           for runtime in ${runtimes}; do
-            docker build \
-              --platform=linux/amd64 \
+            docker buildx build \
+              --platform=linux/amd64,linux/arm64 \
               --build-arg GDAL_VERSION_TAG=${{ env.GDAL_VERSION_TAG }} \
               --build-arg RUNTIME_VERSION=${runtime} \
               --build-arg NUMPY_VERSION=2.4.2 \
               --build-arg PKG_INSTALLER=dnf \
+              --push \
               -f dockerfiles/runtimes/python \
               -t ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ env.GDAL_VERSION_TAG }}-python${runtime} .
-            docker push ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ env.GDAL_VERSION_TAG }}-python${runtime}
           done
 
   update-layer:

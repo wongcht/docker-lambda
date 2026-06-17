@@ -22,6 +22,8 @@ Follow the [instruction](https://medium.com/@devlog/gdal-in-aws-lambda-stop-anno
 
 Based on `public.ecr.aws/lambda/provided:al2023` (Amazon Linux 2023)
 
+Images are multi-arch (`linux/amd64` and `linux/arm64`) — Docker pulls the manifest matching your platform automatically.
+
 - GDAL 3.12.2
   - **ghcr.io/wongcht/lambda-gdal:3.12** (Feb 2026)
 
@@ -129,9 +131,12 @@ Starting with gdal3.1 (PROJ 7.1), you can set `PROJ_NETWORK=ON` to use [remote g
 
 # AWS Lambda Layers
 
-| gdal | amazonlinux version | size (Mb) | unzipped size (Mb) | arn                                                         |
-| ---- | ------------------- | --------- | ------------------ | ----------------------------------------------------------- |
-| 3.12  | 5                   | TBD       | TBD                | arn:aws:lambda:{REGION}:959051626939:layer:gdal312:{VERSION} |
+Each GDAL version is published as two layers, one per Lambda architecture. Pick the layer matching your function's `Architectures` setting — a layer built for one architecture cannot be attached to a function configured for the other.
+
+| gdal | architecture | amazonlinux version | size (Mb) | unzipped size (Mb) | arn                                                              |
+| ---- | ------------ | -------------------- | --------- | ------------------- | ----------------------------------------------------------------- |
+| 3.12 | x86_64       | 5                    | TBD       | TBD                  | arn:aws:lambda:{REGION}:959051626939:layer:gdal312-x86_64:{VERSION} |
+| 3.12 | arm64        | 5                    | TBD       | TBD                  | arn:aws:lambda:{REGION}:959051626939:layer:gdal312-arm64:{VERSION} |
 
 see [/layer.json](/layer.json) for the list of arns
 
@@ -143,9 +148,14 @@ cat layer.json| jq '.[] | select(.region == "eu-west-2")'
   "region": "eu-west-2",
   "layers": [
     {
-      "name": "gdal312",
-      "arn": "arn:aws:lambda:eu-west-2:959051626939:layer:gdal312:5",
-      "version": 5
+      "name": "gdal312-x86_64",
+      "arn": "arn:aws:lambda:eu-west-2:959051626939:layer:gdal312-x86_64:1",
+      "version": 1
+    },
+    {
+      "name": "gdal312-arm64",
+      "arn": "arn:aws:lambda:eu-west-2:959051626939:layer:gdal312-arm64:1",
+      "version": 1
     }
   ]
 }
@@ -202,7 +212,7 @@ package.zip
 
 **AWS Lambda Config:**
 
-- arn: `arn:aws:lambda:us-east-1:959051626939:layer:gdal312:5` (example)
+- arn: `arn:aws:lambda:us-east-1:959051626939:layer:gdal312-x86_64:5` (example, use `gdal312-arm64` if your function's **Architectures** is set to `arm64`)
 - env:
   - **GDAL_DATA:** /opt/share/gdal
   - **PROJ_LIB:** /opt/share/proj
@@ -270,7 +280,7 @@ package.zip
 
 **AWS Lambda Config:**
 
-- arn: `arn:aws:lambda:us-east-1:959051626939:layer:gdal312:1` (example)
+- arn: `arn:aws:lambda:us-east-1:959051626939:layer:gdal312-x86_64:1` (example, use `gdal312-arm64` if your function's **Architectures** is set to `arm64`)
 - env:
   - **GDAL_DATA:** /opt/share/gdal
   - **PROJ_LIB:** /opt/share/proj
