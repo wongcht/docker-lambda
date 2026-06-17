@@ -1,0 +1,22 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "dependencyDashboard": true,
+  "dockerfile": {
+    "enabled": false
+  },
+  "github-actions": {
+    "enabled": false
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Track the GDAL release used to build the lambda-gdal image",
+      "managerFilePatterns": ["/^\\.github/workflows/ci\\.yml$/"],
+      "matchStrings": ["GDAL_VERSION:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "OSGeo/gdal",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    }
+  ]
+}
