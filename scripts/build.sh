@@ -8,9 +8,19 @@ PLATFORM=${PLATFORM:-linux/amd64}
 
 echo "Building image for AWS Lambda | GDAL: ${GDAL_VERSION} | Runtime: ${RUNTIME}:${RUNTIME_VERSION} | Platform: ${PLATFORM}"
 
+cd "$(dirname "$0")/.."
+
+# Other library versions are pinned in versions.env and shared with CI;
+# GDAL_VERSION here always overrides whatever is pinned there.
+build_args=(--build-arg GDAL_VERSION=${GDAL_VERSION})
+while IFS='=' read -r name value; do
+    [[ -z $name || $name == \#* || $name == GDAL_VERSION ]] && continue
+    build_args+=(--build-arg "${name}=${value}")
+done < versions.env
+
 docker buildx build \
     --platform=${PLATFORM} \
-    --build-arg GDAL_VERSION=${GDAL_VERSION} \
+    "${build_args[@]}" \
     -f dockerfiles/Dockerfile \
     -t ghcr.io/wongcht/lambda-gdal:${GDAL_VERSION_TAG} .
 

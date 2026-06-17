@@ -11,12 +11,11 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Track the GDAL release used to build the lambda-gdal image",
-      "managerFilePatterns": ["/^\\.github/workflows/ci\\.yml$/"],
-      "matchStrings": ["GDAL_VERSION:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
-      "datasourceTemplate": "github-tags",
-      "packageNameTemplate": "OSGeo/gdal",
-      "extractVersionTemplate": "^v(?<version>.*)$"
+      "description": "Library versions pinned for the lambda-gdal image build",
+      "managerFilePatterns": ["/^versions\\.env$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)(?: extractVersion=(?<extractVersion>\\S+))?\\n\\S+_VERSION=(?<currentValue>\\S+)"
+      ]
     }
   ]
 }

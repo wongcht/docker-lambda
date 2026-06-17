@@ -11,7 +11,7 @@ RUN dnf update -y && \
     rm -rf /var/cache/dnf
 
 # Install CMake 3.26+ (required for HDF5 2.0.0)
-ENV CMAKE_VERSION=4.2.3
+ARG CMAKE_VERSION
 RUN ARCH=$(uname -m) && \
     if [ "$ARCH" = "x86_64" ]; then CMAKE_ARCH="x86_64"; \
     elif [ "$ARCH" = "aarch64" ]; then CMAKE_ARCH="aarch64"; \
@@ -27,7 +27,7 @@ WORKDIR /opt
 ENV LD_LIBRARY_PATH=$PREFIX/lib:$LD_LIBRARY_PATH
 
 # pkg-config
-ENV PKGCONFIG_VERSION=0.29.2
+ARG PKGCONFIG_VERSION
 RUN mkdir /tmp/pkg-config \
   && curl -sfL https://pkg-config.freedesktop.org/releases/pkg-config-${PKGCONFIG_VERSION}.tar.gz | tar zxf - -C /tmp/pkg-config --strip-components=1 \
   && cd /tmp/pkg-config \
@@ -68,7 +68,7 @@ RUN mkdir /tmp/libxml2 \
   && rm -rf /tmp/libxml2
 
 # nghttp2
-ENV NGHTTP2_VERSION=1.68.0
+ARG NGHTTP2_VERSION
 RUN mkdir /tmp/nghttp2 \
   && curl -sfL https://github.com/nghttp2/nghttp2/releases/download/v${NGHTTP2_VERSION}/nghttp2-${NGHTTP2_VERSION}.tar.gz | tar zxf - -C /tmp/nghttp2 --strip-components=1 \
   && cd /tmp/nghttp2 \
@@ -77,7 +77,7 @@ RUN mkdir /tmp/nghttp2 \
   && rm -rf /tmp/nghttp2
 
 # libcurl
-ENV CURL_VERSION=8.18.0
+ARG CURL_VERSION
 RUN mkdir /tmp/libcurl \
   && curl -sfL https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz | tar zxf - -C /tmp/libcurl --strip-components=1 \
   && cd /tmp/libcurl \
@@ -99,7 +99,7 @@ RUN mkdir /tmp/libdeflate \
   && rm -rf /tmp/libdeflate
 
 # libpng
-ENV LIBPNG_VERSION=1.6.55
+ARG LIBPNG_VERSION
 RUN mkdir /tmp/png \
   && curl -sfL https://github.com/pnggroup/libpng/archive/refs/tags/v${LIBPNG_VERSION}.tar.gz | tar zxf - -C /tmp/png --strip-components=1 \
   && cd /tmp/png \
@@ -108,7 +108,7 @@ RUN mkdir /tmp/png \
   && rm -rf /tmp/png
 
 # libjpeg_turbo
-ENV LIBJPEG_TURBO_VERSION=3.1.3
+ARG LIBJPEG_TURBO_VERSION
 RUN mkdir /tmp/jpeg \
   && curl -sfL https://github.com/libjpeg-turbo/libjpeg-turbo/archive/${LIBJPEG_TURBO_VERSION}.tar.gz | tar zxf - -C /tmp/jpeg --strip-components=1 \
   && cd /tmp/jpeg \
@@ -123,7 +123,7 @@ RUN mkdir /tmp/jpeg \
   && rm -rf /tmp/jpeg
 
 # webp
-ENV WEBP_VERSION=1.6.0
+ARG WEBP_VERSION
 RUN mkdir /tmp/webp \
   && curl -sfL https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-${WEBP_VERSION}.tar.gz | tar zxf - -C /tmp/webp --strip-components=1 \
   && cd /tmp/webp \
@@ -132,7 +132,7 @@ RUN mkdir /tmp/webp \
   && rm -rf /tmp/webp
 
 # zstd
-ENV ZSTD_VERSION=1.5.7
+ARG ZSTD_VERSION
 RUN mkdir /tmp/zstd \
   && curl -sfL https://github.com/facebook/zstd/archive/v${ZSTD_VERSION}.tar.gz | tar zxf - -C /tmp/zstd --strip-components=1 \
   && cd /tmp/zstd \
@@ -140,7 +140,7 @@ RUN mkdir /tmp/zstd \
   && rm -rf /tmp/zstd
 
 # lerc
-ENV LERC_VERSION=4.0.0
+ARG LERC_VERSION
 RUN mkdir /tmp/lerc \
   && curl -sfL https://github.com/Esri/lerc/archive/v${LERC_VERSION}.tar.gz | tar zxf - -C /tmp/lerc --strip-components=1 \
   && cd /tmp/lerc \
@@ -155,7 +155,7 @@ RUN mkdir /tmp/lerc \
   && rm -rf /tmp/lerc
 
 # libtiff
-ENV LIBTIFF_VERSION=4.7.1
+ARG LIBTIFF_VERSION
 RUN mkdir /tmp/libtiff \
   && curl -sfL https://download.osgeo.org/libtiff/tiff-${LIBTIFF_VERSION}.tar.gz | tar zxf - -C /tmp/libtiff --strip-components=1 \
   && cd /tmp/libtiff \
@@ -173,7 +173,7 @@ RUN mkdir /tmp/libtiff \
   && rm -rf /tmp/libtiff
 
 # postgres
-ENV PG_VERSION=18.2
+ARG PG_VERSION
 RUN mkdir /tmp/postgres \
   && curl -sfL https://ftp.postgresql.org/pub/source/v${PG_VERSION}/postgresql-${PG_VERSION}.tar.gz | tar zxf - -C /tmp/postgres --strip-components=1 \
   && cd /tmp/postgres \
@@ -182,7 +182,7 @@ RUN mkdir /tmp/postgres \
   && rm -rf /tmp/postgres
 
 # openjpeg
-ENV OPENJPEG_VERSION=2.5.4
+ARG OPENJPEG_VERSION
 RUN mkdir /tmp/openjpeg \
   && curl -sfL https://github.com/uclouvain/openjpeg/archive/v${OPENJPEG_VERSION}.tar.gz | tar zxf - -C /tmp/openjpeg --strip-components=1 \
   && cd /tmp/openjpeg \
@@ -198,7 +198,7 @@ RUN mkdir /tmp/openjpeg \
   && rm -rf /tmp/openjpeg
 
 # geos
-ENV GEOS_VERSION=3.14.1
+ARG GEOS_VERSION
 RUN mkdir /tmp/geos \
   && curl -sfL https://github.com/libgeos/geos/archive/refs/tags/${GEOS_VERSION}.tar.gz | tar zxf - -C /tmp/geos --strip-components=1 \
   && cd /tmp/geos \
@@ -224,7 +224,7 @@ RUN mkdir /tmp/geos \
 #   && make -j $(nproc) --silent && make install \
 #   && rm -rf /tmp/proj
 
-ENV PROJ_VERSION=9.7.1
+ARG PROJ_VERSION
 RUN mkdir /tmp/proj && mkdir /tmp/proj/data \
   && curl -sfL https://github.com/OSGeo/proj/archive/${PROJ_VERSION}.tar.gz | tar zxf - -C /tmp/proj --strip-components=1 \
   && cd /tmp/proj \
@@ -241,7 +241,7 @@ RUN mkdir /tmp/proj && mkdir /tmp/proj/data \
   && rm -rf /tmp/proj
 
 # GeoTIFF
-ENV LIBGEOTIFF_VERSION=1.7.4
+ARG LIBGEOTIFF_VERSION
 RUN mkdir /tmp/libgeotiff \
   && curl -sfL https://github.com/OSGeo/libgeotiff/releases/download/${LIBGEOTIFF_VERSION}/libgeotiff-${LIBGEOTIFF_VERSION}.tar.gz | tar zxf - -C /tmp/libgeotiff --strip-components=1 \
   && cd /tmp/libgeotiff \
@@ -256,7 +256,7 @@ RUN mkdir /tmp/libgeotiff \
   && rm -rf /tmp/libgeotiff
 
 # Build blosc2 (needed for ZARR)
-ENV BLOSC2_VERSION=2.23.0
+ARG BLOSC2_VERSION
 RUN mkdir /tmp/blosc2 \
   && curl -sfL https://github.com/Blosc/c-blosc2/archive/refs/tags/v${BLOSC2_VERSION}.tar.gz | tar zxf - -C /tmp/blosc2 --strip-components=1 \
   && cd /tmp/blosc2 \
@@ -287,7 +287,7 @@ RUN mkdir /tmp/cryptopp \
   && rm -rf /tmp/cryptopp
 
 # szip (for hdf4)
-ENV SZIP_VERSION=2.1.1
+ARG SZIP_VERSION
 RUN mkdir /tmp/szip \
   && curl -sfL https://support.hdfgroup.org/ftp/lib-external/szip/${SZIP_VERSION}/src/szip-${SZIP_VERSION}.tar.gz | tar zxf - -C /tmp/szip --strip-components=1 \
   && cd /tmp/szip \
@@ -296,7 +296,7 @@ RUN mkdir /tmp/szip \
   && rm -rf /tmp/szip
 
 # libaec (for hdf5 2.0.0+)
-ENV LIBAEC_VERSION=1.1.3
+ARG LIBAEC_VERSION
 RUN mkdir /tmp/libaec \
   && curl -sfL https://gitlab.dkrz.de/k202009/libaec/-/archive/v${LIBAEC_VERSION}/libaec-v${LIBAEC_VERSION}.tar.gz | tar zxf - -C /tmp/libaec --strip-components=1 \
   && cd /tmp/libaec \
@@ -311,7 +311,7 @@ RUN mkdir /tmp/libaec \
   && rm -rf /tmp/libaec
 
 # libhdf4 (needs libtirpc for rpc/rpc.h on AL2023; 4.2.16+ for C99/gcc compatibility)
-ENV HDF4_VERSION=4.3.1
+ARG HDF4_VERSION
 RUN mkdir /tmp/hdf4 \
   && curl -sfL https://github.com/HDFGroup/hdf4/releases/download/hdf${HDF4_VERSION}/hdf${HDF4_VERSION}.tar.gz | tar zxf - -C /tmp/hdf4 --strip-components=1 \
   && cd /tmp/hdf4/hdf-${HDF4_VERSION} \
@@ -329,7 +329,7 @@ RUN mkdir /tmp/hdf4 \
   && rm -rf /tmp/hdf4
 
 # libhdf5
-ENV HDF5_VERSION=2.0.0
+ARG HDF5_VERSION
 RUN mkdir /tmp/hdf5 \
   && curl -sfL https://github.com/HDFGroup/hdf5/archive/refs/tags/${HDF5_VERSION}.tar.gz | tar zxf - -C /tmp/hdf5 --strip-components=1 \
   && cd /tmp/hdf5 \
@@ -351,7 +351,7 @@ RUN mkdir /tmp/hdf5 \
 
 # NetCDF
 # ENV NETCDF_VERSION=4.9.3 conflicts with GDAL
-ENV NETCDF_VERSION=4.7.4
+ARG NETCDF_VERSION
 RUN mkdir /tmp/netcdf \
   && curl -sfL https://github.com/Unidata/netcdf-c/archive/v${NETCDF_VERSION}.tar.gz | tar zxf - -C /tmp/netcdf --strip-components=1 \
   && cd /tmp/netcdf \
@@ -377,7 +377,7 @@ RUN mkdir /tmp/netcdf \
 #   && rm -rf /tmp/libhwy
 
 # brotli
-ENV BROTLI_VERSION=1.2.0
+ARG BROTLI_VERSION
 RUN mkdir /tmp/brotli \
   && curl -sfL https://github.com/google/brotli/archive/refs/tags/v${BROTLI_VERSION}.tar.gz | tar zxf - -C /tmp/brotli --strip-components=1 \
   && cd /tmp/brotli \
@@ -434,7 +434,7 @@ RUN mkdir /tmp/gdal \
 
 # from https://github.com/pypa/manylinux/blob/d8ef5d47433ba771fa4403fd48f352c586e06e43/docker/build_scripts/build.sh#L133-L138
 # Install patchelf (latest with unreleased bug fixes)
-ENV PATCHELF_VERSION=0.18.0
+ARG PATCHELF_VERSION
 RUN mkdir /tmp/patchelf \
   && curl -sfL https://github.com/NixOS/patchelf/archive/${PATCHELF_VERSION}.tar.gz | tar zxf - -C /tmp/patchelf --strip-components=1 \
   && cd /tmp/patchelf && ./bootstrap.sh && ./configure \
