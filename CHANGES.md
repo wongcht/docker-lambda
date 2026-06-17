@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-06-17
+
+- Update to GDAL 3.13.1
+
 ## 2026-02-23
 
 - Update to GDAL 3.12.2
