@@ -14,7 +14,7 @@
 </p>
 <!-- markdownlint-enable -->
 
-## TL;DR — Add the GDAL 3.12 Layer ARN in Your Lambda
+## TL;DR — Add the GDAL 3.13 Layer ARN in Your Lambda
 
 Follow the [instruction](https://medium.com/@devlog/gdal-in-aws-lambda-stop-annoying-installation-and-just-use-a-layer-7a5ae946ffde)
 
@@ -24,14 +24,14 @@ Based on `public.ecr.aws/lambda/provided:al2023` (Amazon Linux 2023)
 
 Images are multi-arch (`linux/amd64` and `linux/arm64`) — Docker pulls the manifest matching your platform automatically.
 
-- GDAL 3.12.2
-  - **ghcr.io/wongcht/lambda-gdal:3.12** (Feb 2026)
+- GDAL 3.13.1
+  - **ghcr.io/wongcht/lambda-gdal:3.13** (Jun 2026)
 
 Runtimes images:
 
 - Python (based on `public.ecr.aws/lambda/python:{version}`)
-  - **ghcr.io/wongcht/lambda-gdal:3.12-python3.12**
-  - **ghcr.io/wongcht/lambda-gdal:3.12-python3.13**
+  - **ghcr.io/wongcht/lambda-gdal:3.13-python3.12**
+  - **ghcr.io/wongcht/lambda-gdal:3.13-python3.13**
 
 see: <https://github.com/wongcht/docker-lambda/pkgs/container/lambda-gdal>
 
@@ -42,7 +42,7 @@ see: <https://github.com/wongcht/docker-lambda/pkgs/container/lambda-gdal>
 #### 1. Create Dockerfile
 
 ```Dockerfile
-FROM ghcr.io/wongcht/lambda-gdal:3.12 AS gdal
+FROM ghcr.io/wongcht/lambda-gdal:3.13 AS gdal
 
 # We use the official AWS Lambda image
 FROM public.ecr.aws/lambda/{RUNTIME: python|node|go...}:{RUNTIME version}
@@ -71,7 +71,7 @@ RUN cd $PACKAGE_PREFIX && zip -r9q /tmp/package.zip *
 If you are working with **python3.12|3.13**, you can use wongcht pre-build docker images:
 
 ```Dockerfile
-FROM ghcr.io/wongcht/lambda-gdal:3.12-python3.13
+FROM ghcr.io/wongcht/lambda-gdal:3.13-python3.13
 
 ENV PACKAGE_PREFIX=/var/task
 
@@ -135,8 +135,8 @@ Each GDAL version is published as two layers, one per Lambda architecture. Pick 
 
 | gdal | architecture | amazonlinux version | size (Mb) | unzipped size (Mb) | arn                                                              |
 | ---- | ------------ | -------------------- | --------- | ------------------- | ----------------------------------------------------------------- |
-| 3.12 | x86_64       | 5                    | TBD       | TBD                  | arn:aws:lambda:{REGION}:959051626939:layer:gdal312-x86_64:{VERSION} |
-| 3.12 | arm64        | 5                    | TBD       | TBD                  | arn:aws:lambda:{REGION}:959051626939:layer:gdal312-arm64:{VERSION} |
+| 3.13 | x86_64       | 5                    | TBD       | TBD                  | arn:aws:lambda:{REGION}:959051626939:layer:gdal313-x86_64:{VERSION} |
+| 3.13 | arm64        | 5                    | TBD       | TBD                  | arn:aws:lambda:{REGION}:959051626939:layer:gdal313-arm64:{VERSION} |
 
 see [/layer.json](/layer.json) for the list of arns
 
@@ -148,13 +148,13 @@ cat layer.json| jq '.[] | select(.region == "eu-west-2")'
   "region": "eu-west-2",
   "layers": [
     {
-      "name": "gdal312-x86_64",
-      "arn": "arn:aws:lambda:eu-west-2:959051626939:layer:gdal312-x86_64:1",
+      "name": "gdal313-x86_64",
+      "arn": "arn:aws:lambda:eu-west-2:959051626939:layer:gdal313-x86_64:1",
       "version": 1
     },
     {
-      "name": "gdal312-arm64",
-      "arn": "arn:aws:lambda:eu-west-2:959051626939:layer:gdal312-arm64:1",
+      "name": "gdal313-arm64",
+      "arn": "arn:aws:lambda:eu-west-2:959051626939:layer:gdal313-arm64:1",
       "version": 1
     }
   ]
@@ -212,7 +212,7 @@ package.zip
 
 **AWS Lambda Config:**
 
-- arn: `arn:aws:lambda:us-east-1:959051626939:layer:gdal312-x86_64:5` (example, use `gdal312-arm64` if your function's **Architectures** is set to `arm64`)
+- arn: `arn:aws:lambda:us-east-1:959051626939:layer:gdal313-x86_64:5` (example, use `gdal313-arm64` if your function's **Architectures** is set to `arm64`)
 - env:
   - **GDAL_DATA:** /opt/share/gdal
   - **PROJ_LIB:** /opt/share/proj
@@ -225,7 +225,7 @@ If your lambda handler needs more dependencies you'll have to use the exact same
 ##### Create a Dockerfile
 
 ```dockerfile
-FROM ghcr.io/wongcht/lambda-gdal:3.12 AS gdal
+FROM ghcr.io/wongcht/lambda-gdal:3.13 AS gdal
 
 # This example assume that you are creating a lambda package for python 3.13
 FROM public.ecr.aws/lambda/python:3.13
@@ -249,7 +249,7 @@ ENV PACKAGE_PREFIX=/var/task
 COPY handler.py ${PACKAGE_PREFIX}/handler.py
 
 # install package
-# This example shows how to install GDAL python bindings for gdal 3.12
+# This example shows how to install GDAL python bindings for gdal 3.13
 # The GDAL version should be the same as the one provided by the `wongcht/lambda-gdal` image
 RUN python -m pip install GDAL==$(gdal-config --version) -t $PACKAGE_PREFIX
 
@@ -280,7 +280,7 @@ package.zip
 
 **AWS Lambda Config:**
 
-- arn: `arn:aws:lambda:us-east-1:959051626939:layer:gdal312-x86_64:1` (example, use `gdal312-arm64` if your function's **Architectures** is set to `arm64`)
+- arn: `arn:aws:lambda:us-east-1:959051626939:layer:gdal313-x86_64:1` (example, use `gdal313-arm64` if your function's **Architectures** is set to `arm64`)
 - env:
   - **GDAL_DATA:** /opt/share/gdal
   - **PROJ_LIB:** /opt/share/proj
