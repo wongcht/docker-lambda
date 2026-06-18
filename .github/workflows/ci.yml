@@ -15,11 +15,26 @@ on:
   pull_request:
   workflow_dispatch:
 
-env:
-  GDAL_VERSION_TAG: 3.13
-
 jobs:
+  vars:
+    runs-on: ubuntu-24.04
+    outputs:
+      gdal_version_tag: ${{ steps.gdal_version_tag.outputs.value }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Compute GDAL version tag
+        id: gdal_version_tag
+        run: |
+          source versions.env
+          if ! [[ "$GDAL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "GDAL_VERSION must be in X.Y.Z format, got: $GDAL_VERSION" >&2
+            exit 1
+          fi
+          echo "value=${GDAL_VERSION%.*}" >> "$GITHUB_OUTPUT"
+
   build:
+    needs: [vars]
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
     strategy:
       matrix:
@@ -70,7 +85,7 @@ jobs:
           load: true
           file: dockerfiles/Dockerfile
           build-args: ${{ steps.versions.outputs.content }}
-          tags: ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ env.GDAL_VERSION_TAG }}-${{ matrix.arch }}
+          tags: ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ needs.vars.outputs.gdal_version_tag }}-${{ matrix.arch }}
           cache-from: type=gha,scope=${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=${{ matrix.arch }}
 
@@ -79,11 +94,11 @@ jobs:
           docker run \
             --entrypoint bash \
             -v ${{ github.workspace }}:/local \
-            --rm ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ env.GDAL_VERSION_TAG }}-${{ matrix.arch }} \
+            --rm ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ needs.vars.outputs.gdal_version_tag }}-${{ matrix.arch }} \
             /local/tests/tests.sh
 
   deploy-gdal:
-    needs: [build]
+    needs: [vars, build]
     if: contains(github.ref, 'tags') && github.event_name == 'push'
     strategy:
       matrix:
@@ -126,10 +141,10 @@ jobs:
           push: true
           cache-from: type=gha,scope=${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=${{ matrix.arch }}
-          tags: ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ env.GDAL_VERSION_TAG }}-${{ matrix.arch }}
+          tags: ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ needs.vars.outputs.gdal_version_tag }}-${{ matrix.arch }}
 
   deploy-gdal-manifest:
-    needs: [deploy-gdal]
+    needs: [vars, deploy-gdal]
     runs-on: ubuntu-24.04
     if: contains(github.ref, 'tags') && github.event_name == 'push'
     steps:
@@ -143,12 +158,12 @@ jobs:
       - name: Create multi-arch manifest
         run: |
           docker buildx imagetools create \
-            -t ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ env.GDAL_VERSION_TAG }} \
-            ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ env.GDAL_VERSION_TAG }}-amd64 \
-            ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ env.GDAL_VERSION_TAG }}-arm64
+            -t ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ needs.vars.outputs.gdal_version_tag }} \
+            ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ needs.vars.outputs.gdal_version_tag }}-amd64 \
+            ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ needs.vars.outputs.gdal_version_tag }}-arm64
 
   deploy-layers:
-    needs: [deploy-gdal]
+    needs: [vars, deploy-gdal]
     if: contains(github.ref, 'tags') && github.event_name == 'push'
     strategy:
       matrix:
@@ -182,12 +197,12 @@ jobs:
             --entrypoint bash \
             -e OUTPUT_ZIP=package-${{ matrix.arch }}.zip \
             -v ${{ github.workspace }}:/local \
-            --rm ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ env.GDAL_VERSION_TAG }}-${{ matrix.arch }} \
+            --rm ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ needs.vars.outputs.gdal_version_tag }}-${{ matrix.arch }} \
             /local/scripts/create-layer.sh
-          python scripts/deploy.py ${{ env.GDAL_VERSION_TAG }} --arch ${{ matrix.lambda_arch }} --package package-${{ matrix.arch }}.zip --deploy
+          python scripts/deploy.py ${{ needs.vars.outputs.gdal_version_tag }} --arch ${{ matrix.lambda_arch }} --package package-${{ matrix.arch }}.zip --deploy
 
   deploy-runtime:
-    needs: [deploy-gdal]
+    needs: [vars, deploy-gdal]
     if: contains(github.ref, 'tags') && github.event_name == 'push'
     strategy:
       matrix:
@@ -219,17 +234,17 @@ jobs:
           context: .
           file: dockerfiles/runtimes/python
           build-args: |
-            GDAL_VERSION_TAG=${{ env.GDAL_VERSION_TAG }}-${{ matrix.arch }}
+            GDAL_VERSION_TAG=${{ needs.vars.outputs.gdal_version_tag }}-${{ matrix.arch }}
             RUNTIME_VERSION=${{ matrix.runtime }}
             NUMPY_VERSION=2.4.2
             PKG_INSTALLER=dnf
           push: true
           cache-from: type=gha,scope=python${{ matrix.runtime }}-${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=python${{ matrix.runtime }}-${{ matrix.arch }}
-          tags: ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ env.GDAL_VERSION_TAG }}-python${{ matrix.runtime }}-${{ matrix.arch }}
+          tags: ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ needs.vars.outputs.gdal_version_tag }}-python${{ matrix.runtime }}-${{ matrix.arch }}
 
   deploy-runtime-manifest:
-    needs: [deploy-runtime]
+    needs: [vars, deploy-runtime]
     runs-on: ubuntu-24.04
     if: contains(github.ref, 'tags') && github.event_name == 'push'
     strategy:
@@ -246,9 +261,9 @@ jobs:
       - name: Create multi-arch manifest (python${{ matrix.runtime }})
         run: |
           docker buildx imagetools create \
-            -t ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ env.GDAL_VERSION_TAG }}-python${{ matrix.runtime }} \
-            ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ env.GDAL_VERSION_TAG }}-python${{ matrix.runtime }}-amd64 \
-            ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ env.GDAL_VERSION_TAG }}-python${{ matrix.runtime }}-arm64
+            -t ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ needs.vars.outputs.gdal_version_tag }}-python${{ matrix.runtime }} \
+            ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ needs.vars.outputs.gdal_version_tag }}-python${{ matrix.runtime }}-amd64 \
+            ghcr.io/${{ github.repository_owner }}/lambda-gdal:${{ needs.vars.outputs.gdal_version_tag }}-python${{ matrix.runtime }}-arm64
 
   update-layer:
     needs: [deploy-layers]
