@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-06-22
+
+- Add Python 3.14 runtime image (`ghcr.io/wongcht/lambda-gdal:{gdal_version}-python3.14`), now the default in docs and examples
+- CI: build/deploy steps use Python 3.14 to run scripts/deploy.py and scripts/list.py
+
 ## 2026-06-17
 
 - Update to GDAL 3.13.1
