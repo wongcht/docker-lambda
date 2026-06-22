@@ -38,16 +38,19 @@ RUN mkdir /tmp/pkg-config \
 ENV PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig/:/usr/lib64/pkgconfig
 
 # sqlite
+ARG SQLITE_VERSION
 RUN mkdir /tmp/sqlite \
-  && curl -sfL https://www.sqlite.org/2026/sqlite-autoconf-3510200.tar.gz | tar zxf - -C /tmp/sqlite --strip-components=1 \
+  && curl -sfL https://www.sqlite.org/2026/sqlite-autoconf-${SQLITE_VERSION}.tar.gz | tar zxf - -C /tmp/sqlite --strip-components=1 \
   && cd /tmp/sqlite \
   && CFLAGS="-O2 -Wl,-S -DSQLITE_ENABLE_RTREE" CXXFLAGS="-O2 -Wl,-S" ./configure --prefix=$PREFIX --disable-static \
   && make -j $(nproc) --silent && make install && make clean \
   && rm -rf /tmp/sqlite
 
 # libexpat
+ARG LIBEXPAT_VERSION
 RUN mkdir /tmp/libexpat \
-  && curl -sfL https://github.com/libexpat/libexpat/releases/download/R_2_7_4/expat-2.7.4.tar.gz | tar zxf - -C /tmp/libexpat --strip-components=1 \
+  && LIBEXPAT_TAG=R_$(echo ${LIBEXPAT_VERSION} | tr '.' '_') \
+  && curl -sfL https://github.com/libexpat/libexpat/releases/download/${LIBEXPAT_TAG}/expat-${LIBEXPAT_VERSION}.tar.gz | tar zxf - -C /tmp/libexpat --strip-components=1 \
   && cd /tmp/libexpat \
   && CFLAGS="-O2 -Wl,-S" CXXFLAGS="-O2 -Wl,-S" ./configure --prefix=$PREFIX --disable-static \
   && make -j $(nproc) --silent && make install && make clean \
@@ -60,8 +63,9 @@ ENV \
   PATH=${PREFIX}/bin/:$PATH
 
 # libxml2
+ARG LIBXML2_VERSION
 RUN mkdir /tmp/libxml2 \
-  && curl -sfL https://gitlab.gnome.org/GNOME/libxml2/-/archive/v2.15.1/libxml2-v2.15.1.tar.gz | tar zxf - -C /tmp/libxml2 --strip-components=1  \
+  && curl -sfL https://gitlab.gnome.org/GNOME/libxml2/-/archive/v${LIBXML2_VERSION}/libxml2-v${LIBXML2_VERSION}.tar.gz | tar zxf - -C /tmp/libxml2 --strip-components=1  \
   && cd /tmp/libxml2 \
   && ./autogen.sh --prefix=$PREFIX --with-ftp=no --with-http=no --with-python=no \
   && make -j $(nproc) --silent && make install \
@@ -86,8 +90,9 @@ RUN mkdir /tmp/libcurl \
   && rm -rf /tmp/libcurl
 
 # libdeflate
+ARG LIBDEFLATE_VERSION
 RUN mkdir /tmp/libdeflate \
-  && curl -sfL https://github.com/ebiggers/libdeflate/archive/v1.25.tar.gz | tar zxf - -C /tmp/libdeflate --strip-components=1 \
+  && curl -sfL https://github.com/ebiggers/libdeflate/archive/v${LIBDEFLATE_VERSION}.tar.gz | tar zxf - -C /tmp/libdeflate --strip-components=1 \
   && cd /tmp/libdeflate \
   && mkdir build && cd build \
   && cmake .. \
@@ -280,8 +285,10 @@ RUN mkdir /tmp/blosc2 \
   && rm -rf /tmp/blosc2
 
 # libcrypto (for GPC access)
+ARG CRYPTOPP_VERSION
 RUN mkdir /tmp/cryptopp \
-  && curl -sfL https://github.com/weidai11/cryptopp/archive/refs/tags/CRYPTOPP_8_9_0.tar.gz | tar zxf - -C /tmp/cryptopp --strip-components=1 \
+  && CRYPTOPP_TAG=CRYPTOPP_$(echo ${CRYPTOPP_VERSION} | tr '.' '_') \
+  && curl -sfL https://github.com/weidai11/cryptopp/archive/refs/tags/${CRYPTOPP_TAG}.tar.gz | tar zxf - -C /tmp/cryptopp --strip-components=1 \
   && cd /tmp/cryptopp \
   && make -j $(nproc) --silent && make install PREFIX=$PREFIX \
   && rm -rf /tmp/cryptopp
