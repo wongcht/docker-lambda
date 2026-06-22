@@ -19,19 +19,21 @@ jobs:
   vars:
     runs-on: ubuntu-24.04
     outputs:
-      gdal_version_tag: ${{ steps.gdal_version_tag.outputs.value }}
+      gdal_version_tag: ${{ steps.versions.outputs.gdal_version_tag }}
+      numpy_version: ${{ steps.versions.outputs.numpy_version }}
     steps:
       - uses: actions/checkout@v6
 
-      - name: Compute GDAL version tag
-        id: gdal_version_tag
+      - name: Compute version outputs
+        id: versions
         run: |
           source versions.env
           if ! [[ "$GDAL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "GDAL_VERSION must be in X.Y.Z format, got: $GDAL_VERSION" >&2
             exit 1
           fi
-          echo "value=${GDAL_VERSION%.*}" >> "$GITHUB_OUTPUT"
+          echo "gdal_version_tag=${GDAL_VERSION%.*}" >> "$GITHUB_OUTPUT"
+          echo "numpy_version=${NUMPY_VERSION}" >> "$GITHUB_OUTPUT"
 
   build:
     needs: [vars]
@@ -236,7 +238,7 @@ jobs:
           build-args: |
             GDAL_VERSION_TAG=${{ needs.vars.outputs.gdal_version_tag }}-${{ matrix.arch }}
             RUNTIME_VERSION=${{ matrix.runtime }}
-            NUMPY_VERSION=2.4.2
+            NUMPY_VERSION=${{ needs.vars.outputs.numpy_version }}
             PKG_INSTALLER=dnf
           push: true
           cache-from: type=gha,scope=python${{ matrix.runtime }}-${{ matrix.arch }}
