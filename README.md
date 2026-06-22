@@ -32,6 +32,7 @@ Runtimes images:
 - Python (based on `public.ecr.aws/lambda/python:{version}`)
   - **ghcr.io/wongcht/lambda-gdal:3.13-python3.12**
   - **ghcr.io/wongcht/lambda-gdal:3.13-python3.13**
+  - **ghcr.io/wongcht/lambda-gdal:3.13-python3.14**
 
 see: <https://github.com/wongcht/docker-lambda/pkgs/container/lambda-gdal>
 
@@ -68,10 +69,10 @@ ENV \
 RUN cd $PACKAGE_PREFIX && zip -r9q /tmp/package.zip *
 ```
 
-If you are working with **python3.12|3.13**, you can use wongcht pre-build docker images:
+If you are working with **python3.12|3.13|3.14**, you can use wongcht pre-build docker images:
 
 ```Dockerfile
-FROM ghcr.io/wongcht/lambda-gdal:3.13-python3.13
+FROM ghcr.io/wongcht/lambda-gdal:3.13-python3.14
 
 ENV PACKAGE_PREFIX=/var/task
 
@@ -227,8 +228,8 @@ If your lambda handler needs more dependencies you'll have to use the exact same
 ```dockerfile
 FROM ghcr.io/wongcht/lambda-gdal:3.13 AS gdal
 
-# This example assume that you are creating a lambda package for python 3.13
-FROM public.ecr.aws/lambda/python:3.13
+# This example assume that you are creating a lambda package for python 3.14
+FROM public.ecr.aws/lambda/python:3.14
 
 # Bring C libs from wongcht/lambda-gdal image
 COPY --from=gdal /opt/lib/ /opt/lib/
