@@ -122,6 +122,7 @@ RUN mkdir /tmp/jpeg \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX:PATH=$PREFIX \
     -DCMAKE_INSTALL_LIBDIR:PATH=lib \
+    -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
     -DCMAKE_C_FLAGS="-O2 -Wl,-S" \
     -DCMAKE_CXX_FLAGS="-O2 -Wl,-S" \
   && make -j $(nproc) --silent && make install \
