@@ -318,21 +318,26 @@ RUN mkdir /tmp/libaec \
   && make -j $(nproc) --silent && make install && make clean \
   && rm -rf /tmp/libaec
 
-# libhdf4 (needs libtirpc for rpc/rpc.h on AL2023; 4.2.16+ for C99/gcc compatibility)
+# libhdf4 (4.4.0+ is CMake-only; needs libtirpc for rpc/rpc.h on AL2023; szip provided by libaec above)
 ARG HDF4_VERSION
 RUN mkdir /tmp/hdf4 \
-  && curl -sfL https://github.com/HDFGroup/hdf4/releases/download/hdf${HDF4_VERSION}/hdf${HDF4_VERSION}.tar.gz | tar zxf - -C /tmp/hdf4 --strip-components=1 \
-  && cd /tmp/hdf4/hdf-${HDF4_VERSION} \
-  && CFLAGS="-O2 -Wl,-S" CXXFLAGS="-O2 -Wl,-S" \
-     CPPFLAGS="-I/usr/include/tirpc" LDFLAGS="-ltirpc" \
-     ./configure --build="$(case $(uname -m) in x86_64) echo x86_64-pc-linux-gnu;; aarch64|arm64) echo aarch64-unknown-linux-gnu;; *) echo x86_64-pc-linux-gnu;; esac)" \
-  --prefix=$PREFIX \
-  --with-szlib=$PREFIX \
-  --with-jpeg=$PREFIX \
-  --enable-shared \
-  --disable-static \
-  --disable-netcdf \
-  --disable-fortran \
+  && curl -sfL --retry 5 --retry-all-errors https://github.com/HDFGroup/hdf4/releases/download/hdf${HDF4_VERSION}/hdf${HDF4_VERSION}.tar.gz | tar zxf - -C /tmp/hdf4 --strip-components=1 \
+  && cd /tmp/hdf4 \
+  && mkdir build && cd build \
+  && cmake .. \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX:PATH=$PREFIX \
+    -DCMAKE_INSTALL_LIBDIR:PATH=lib \
+    -DCMAKE_PREFIX_PATH=$PREFIX \
+    -DCMAKE_C_FLAGS="-O2 -Wl,-S -I/usr/include/tirpc" \
+    -DCMAKE_SHARED_LINKER_FLAGS="-ltirpc" \
+    -DCMAKE_EXE_LINKER_FLAGS="-ltirpc" \
+    -DBUILD_SHARED_LIBS=ON \
+    -DBUILD_STATIC_LIBS=OFF \
+    -DHDF4_ENABLE_SZIP_SUPPORT=ON \
+    -DHDF4_BUILD_FORTRAN=OFF \
+    -DHDF4_BUILD_EXAMPLES=OFF \
+    -DBUILD_TESTING=OFF \
   && make -j $(nproc) --silent && make install && make clean \
   && rm -rf /tmp/hdf4
 
