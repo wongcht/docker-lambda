@@ -306,7 +306,7 @@ RUN mkdir /tmp/szip \
 # libaec (for hdf5 2.0.0+)
 ARG LIBAEC_VERSION
 RUN mkdir /tmp/libaec \
-  && curl -sfL https://gitlab.dkrz.de/dkrz-sw/libaec/-/archive/v${LIBAEC_VERSION}/libaec-v${LIBAEC_VERSION}.tar.gz | tar zxf - -C /tmp/libaec --strip-components=1 \
+  && curl -sfL --retry 5 --retry-all-errors https://github.com/Deutsches-Klimarechenzentrum/libaec/archive/refs/tags/v${LIBAEC_VERSION}.tar.gz | tar zxf - -C /tmp/libaec --strip-components=1 \
   && cd /tmp/libaec \
   && mkdir build && cd build \
   && cmake .. \
